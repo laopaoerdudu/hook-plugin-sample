@@ -11,13 +11,12 @@ import android.os.Message
 import android.util.Log
 import android.view.ContextThemeWrapper
 import com.dev.manager.PluginManager
-import com.dev.util.ReflectUtil
+import com.dev.helper.ReflectHelper
 
 class HookedInstrumentation(
     private val instrumentation: Instrumentation,
     private val pluginManager: PluginManager
 ) : Instrumentation(), Handler.Callback {
-
     fun execStartActivity(
         who: Context,
         contextThread: IBinder,
@@ -73,7 +72,7 @@ class HookedInstrumentation(
                     intent
                 )
                 activity.intent = intent
-                ReflectUtil.setField(
+                ReflectHelper.setField(
                     ContextThemeWrapper::class.java,
                     activity,
                     "mResources",

@@ -1,4 +1,4 @@
-package com.dev.util
+package com.dev.helper
 
 import android.app.Activity
 import android.app.Instrumentation
@@ -6,8 +6,9 @@ import com.dev.framework.HookedInstrumentation
 import com.dev.manager.PluginManager
 import java.lang.reflect.Field
 import java.lang.reflect.InvocationTargetException
+import java.lang.reflect.Method
 
-object ReflectUtil {
+object ReflectHelper {
     var mInstrumentation: Instrumentation? = null // ActivityThread 的 Instrumentation 实例
     var sCurrentActivityThread: Any? = null  // ActivityThread 实例
     var activityMInstrumentation: Instrumentation? = null
@@ -85,5 +86,49 @@ object ReflectUtil {
         } catch (ex: Exception) {
             ex.printStackTrace()
         }
+    }
+
+    fun getField(instance: Any, fieldName: String): Field? {
+        var clazz: Class<*>? = instance::class.java
+        while (clazz != null) {
+            try {
+                return (clazz.getDeclaredField(fieldName))?.apply {
+                    isAccessible = true
+                }
+            } catch (ex: NoSuchFieldException) {
+                ex.printStackTrace()
+            }
+            clazz = clazz.superclass
+        }
+        return null
+    }
+
+    fun setField(instance: Any, fieldName: String, value: Any) {
+        var typeClass: Class<*>? = instance::class.java
+        while (typeClass != null) {
+            try {
+                (typeClass.getDeclaredField(fieldName))?.apply {
+                    isAccessible = true
+                }?.set(instance, value)
+            } catch (ex: NoSuchFieldException) {
+                ex.printStackTrace()
+            }
+            typeClass = typeClass.superclass
+        }
+    }
+
+    fun getMethod(instance: Any, methodName: String, vararg paramTypes: Class<*>): Method? {
+        var typeClass: Class<*>? = instance::class.java
+        while (typeClass != null) {
+            try {
+                return typeClass.getDeclaredMethod(methodName, *paramTypes)?.apply {
+                    isAccessible = true
+                }
+            } catch (ex: NoSuchFieldException) {
+                ex.printStackTrace()
+            }
+            typeClass = typeClass.superclass
+        }
+        return null
     }
 }
