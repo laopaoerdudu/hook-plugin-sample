@@ -6,7 +6,7 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.Toast
 import com.dev.constant.HookConstant.Companion.PLUGIN_APK_NAME
-import com.dev.helper.FileHelper.Companion.copyAssetsFileToCache
+import com.dev.helper.FileHelper.Companion.copyAssetsFileToSystemDir
 import com.dev.helper.FileHelper.Companion.getOptimizedDirectory
 import com.dev.helper.PluginHelper
 import dalvik.system.DexClassLoader
@@ -16,7 +16,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun attachBaseContext(newBase: Context?) {
         super.attachBaseContext(newBase)
-        copyAssetsFileToCache(this, PLUGIN_APK_NAME)
+        copyAssetsFileToSystemDir(this, PLUGIN_APK_NAME)
         PluginHelper.loadPlugin(
             classLoader,
             listOf(File(getFileStreamPath(PLUGIN_APK_NAME.replace(".apk", ".dex")).absolutePath)),

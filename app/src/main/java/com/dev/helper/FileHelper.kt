@@ -11,7 +11,7 @@ import java.lang.Exception
 class FileHelper {
     companion object {
         @JvmStatic
-        fun copyAssetsFileToCache(context: Context, fileName: String) {
+        fun copyAssetsFileToSystemDir(context: Context, fileName: String) {
             val filesDir = context.filesDir.apply {
                 if (!exists()) {
                     mkdirs()
