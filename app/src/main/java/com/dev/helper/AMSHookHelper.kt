@@ -1,10 +1,12 @@
-package com.dev.framework
+package com.dev.helper
 
 import android.content.Context
 import android.content.res.AssetManager
 import android.content.res.Resources
 import android.os.Build
 import android.os.Handler
+import com.dev.framework.ActivityThreadHandlerCallback
+import com.dev.framework.IActivityManagerHandler
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Proxy
 
