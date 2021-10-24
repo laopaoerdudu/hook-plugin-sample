@@ -11,14 +11,14 @@ import java.lang.Exception
 class FileHelper {
     companion object {
         @JvmStatic
-        fun copyAssetsFileToCache(context: Context, fileName: String): String? {
-            val cacheDir = context.filesDir.apply {
+        fun copyAssetsFileToCache(context: Context, fileName: String) {
+            val filesDir = context.filesDir.apply {
                 if (!exists()) {
                     mkdirs()
                 }
             }
-            Log.i("WWE", "context.filesDir -> ${cacheDir.absolutePath}")
-            val outputPath = File(cacheDir, fileName).apply {
+            Log.i("WWE", "context.filesDir -> ${filesDir.absolutePath}")
+            val outputPath = File(filesDir, fileName).apply {
                 if (exists()) {
                     delete()
                 }
@@ -34,9 +34,7 @@ class FileHelper {
                     while (ins.read(buf).also { byteCount = it } != -1) {
                         fos.write(buf, 0, byteCount)
                     }
-                    println("outputPath -> ${outputPath.absolutePath} write successfully !")
                     Log.i("WWE", "Copy assets file to cache is succeed !")
-                    return outputPath.absolutePath
                 }
             } catch (ex: Exception) {
                 ex.printStackTrace()
@@ -53,7 +51,10 @@ class FileHelper {
                     ex.printStackTrace()
                 }
             }
-            return null
+        }
+
+        fun getOptimizedDirectory(context: Context): File {
+            return context.getDir("dex", 0)
         }
     }
 }
