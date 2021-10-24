@@ -9,7 +9,6 @@ class PluginHelper {
     companion object {
         // Host: ClassLoader -> DexPathList -> Element[]
         // plugin: DexPathList -> private static makePathElements(dexPath) -> Element[]
-        // List<File> ->  listOf(File(getFileStreamPath(apkName.replace(".apk", ".dex")).absolutePath))
         fun loadPlugin(
             hostClassLoader: ClassLoader,
             dexFiles: List<File>,
