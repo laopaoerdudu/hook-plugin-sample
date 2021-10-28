@@ -8,7 +8,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
 import static com.dev.constant.HookConstant.HOST_APP_PACKAGE_NAME;
-import static com.dev.constant.HookConstant.PLACE_HOLDER_ACTIVITY_NAME;
+import static com.dev.constant.HookConstant.HOST_PLACE_HOLDER_ACTIVITY;
 import static com.dev.constant.HookConstant.PLUGIN_INTENT;
 
 public class IActivityManagerHandler implements InvocationHandler {
@@ -31,7 +31,7 @@ public class IActivityManagerHandler implements InvocationHandler {
             Intent rawIntent = (Intent) args[index];
             Intent targetIntent = new Intent();
             // 这里我们把启动的插件 Activity 临时替换为 PlaceHolderActivity，骗过 AMS 的检查
-            ComponentName componentName = new ComponentName(HOST_APP_PACKAGE_NAME, PLACE_HOLDER_ACTIVITY_NAME);
+            ComponentName componentName = new ComponentName(HOST_APP_PACKAGE_NAME, HOST_PLACE_HOLDER_ACTIVITY);
             targetIntent.setComponent(componentName);
             targetIntent.putExtra(PLUGIN_INTENT, rawIntent);
 

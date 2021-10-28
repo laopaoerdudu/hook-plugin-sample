@@ -6,15 +6,13 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.AssetManager
 import android.content.res.Resources
+import com.dev.constant.HookConstant
 import com.dev.framework.HookedInstrumentation
 import com.dev.framework.PluginApp
 import com.dev.helper.ReflectHelper
-import com.dev.helper.ReflectHelper.getField
-import com.dev.helper.ReflectHelper.getMethod
 import com.dev.util.safeLeft
 import dalvik.system.DexClassLoader
 import java.io.File
-import java.io.IOException
 import java.lang.reflect.InvocationTargetException
 
 object PluginManager {
@@ -73,12 +71,11 @@ object PluginManager {
 
     fun setPluginIntent(intent: Intent) {
         val targetPackageName = intent.component?.packageName
-        val targetClassName = intent.component?.className // STUB_ACTIVITY
+        val targetClassName = intent.component?.className
         if (targetPackageName.isNullOrBlank()) return
-        if (mContext?.packageName == targetPackageName && isPluginLoaded(targetPackageName)) {
+        if (mContext?.packageName != targetPackageName) {
             intent.apply {
-                // TODO: STUB_PACKAGE / STUB_ACTIVITY
-                setClassName("com.dev", "hello activity")
+                setClassName(HookConstant.HOST_APP_PACKAGE_NAME, HookConstant.HOST_PLACE_HOLDER_ACTIVITY)
                 putExtra("isPlugin", true)
                 putExtra("package", targetPackageName)
                 putExtra("activity", targetClassName)
@@ -86,21 +83,7 @@ object PluginManager {
         }
     }
 
-    private fun getPluginClassLoader(apkPath: String): DexClassLoader {
-        return DexClassLoader(
-            mContext?.getFileStreamPath(apkPath)?.path, // dexPath
-            mContext?.getDir("dex", Context.MODE_PRIVATE)?.absolutePath, // optimizedDirectory
-            null, // librarySearchPath
-            mContext?.classLoader // parent
-        )
-    }
-
-    private fun isPluginLoaded(packageName: String): Boolean {
-        // TODO: 检查 packageName 是否匹配
-        return true
-    }
-
-    private fun setPluginApp(apkPath: String) {
+    fun setPluginApp(apkName: String) {
         try {
             val assetManager = AssetManager::class.java.newInstance()
             val method =
@@ -108,14 +91,14 @@ object PluginManager {
                     .apply {
                         isAccessible = true
                     }
-            method.invoke(assetManager, apkPath)
+            method.invoke(assetManager, apkName)
             mPluginApp = PluginApp(
                 Resources(
                     assetManager,
                     mContext?.resources?.displayMetrics,
                     mContext?.resources?.configuration
                 ),
-                getPluginClassLoader(apkPath)
+                getPluginClassLoader(apkName)
             )
         } catch (ex: IllegalAccessException) {
             ex.printStackTrace()
@@ -126,5 +109,14 @@ object PluginManager {
         } catch (ex: InvocationTargetException) {
             ex.printStackTrace()
         }
+    }
+
+    private fun getPluginClassLoader(apkName: String): DexClassLoader {
+        return DexClassLoader(
+            mContext?.getFileStreamPath(apkName)?.path, // dexPath
+            mContext?.getDir("dex", Context.MODE_PRIVATE)?.absolutePath, // optimizedDirectory
+            null, // librarySearchPath
+            mContext?.classLoader // parent
+        )
     }
 }

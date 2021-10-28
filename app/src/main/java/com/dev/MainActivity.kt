@@ -1,15 +1,21 @@
 package com.dev
 
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.Toast
+import com.dev.constant.HookConstant.Companion.PLUGIN_ACTIVITY
 import com.dev.constant.HookConstant.Companion.PLUGIN_APK_NAME
 import com.dev.constant.HookConstant.Companion.PLUGIN_PACKAGE_NAME
+import com.dev.helper.AMSHookHelper
 import com.dev.helper.FileHelper.Companion.copyAssetsFileToSystemDir
 import com.dev.helper.FileHelper.Companion.getOptimizedDirectory
 import com.dev.helper.PluginHelper
+import com.dev.helper.ReflectHelper
+import com.dev.manager.PluginManager
 import dalvik.system.DexClassLoader
 import java.io.File
 
@@ -23,11 +29,19 @@ class MainActivity : AppCompatActivity() {
             listOf(File(getFileStreamPath(PLUGIN_APK_NAME.replace(".apk", ".dex")).absolutePath)),
             getOptimizedDirectory(this)
         )
+        // AMSHookHelper.replacePluginIntentWithHostPlaceHolderIntent()
+        //        AMSHookHelper.replaceHostPlaceHolderIntentWithPluginIntent()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        ReflectHelper.setup()
+        PluginManager.setup(applicationContext)
+        PluginManager.hookActivityThreadInstrumentation()
+        PluginManager.hookActivityInstrumentation(this)
+
         findViewById<Button>(R.id.btnStartPlugin).setOnClickListener {
             // 加载普通的插件类
             val classLoader = DexClassLoader(
@@ -45,8 +59,10 @@ class MainActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.btnStartPluginActivity).setOnClickListener {
             // 加载插件 Activity
-
-
+            PluginManager.setPluginApp(PLUGIN_APK_NAME)
+            startActivity(Intent().apply {
+                component = ComponentName(PLUGIN_PACKAGE_NAME, PLUGIN_ACTIVITY)
+            })
         }
     }
 }
