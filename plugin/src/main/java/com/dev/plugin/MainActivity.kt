@@ -10,11 +10,9 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Toast.makeText(this, "插件 Activity 启动成功", Toast.LENGTH_LONG).show()
-//        setContentView(TextView(this).apply {
-//            text = "插件化"
-//            gravity = Gravity.CENTER
-//        })
-
-       setContentView(R.layout.activity_main)
+        setContentView(TextView(this).apply {
+            text = "插件化"
+            gravity = Gravity.CENTER
+        })
     }
 }
