@@ -13,13 +13,10 @@ import com.dev.constant.HookConstant.Companion.PLUGIN_PACKAGE_NAME
 import com.dev.helper.FileHelper.Companion.copyAssetsFileToSystemDir
 import com.dev.helper.FileHelper.Companion.getOptimizedDirectory
 import com.dev.helper.PluginHelper
-import com.dev.test.PluginManager
-import com.dev.test.ReflectUtil
 import dalvik.system.DexClassLoader
 import java.io.File
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var mPluginManager: PluginManager
 
     override fun attachBaseContext(newBase: Context?) {
         super.attachBaseContext(newBase)
@@ -29,27 +26,16 @@ class MainActivity : AppCompatActivity() {
             listOf(File(getFileStreamPath(PLUGIN_APK_NAME.replace(".apk", ".dex")).absolutePath)),
             getOptimizedDirectory(this)
         )
-        // AMSHookHelper.replacePluginIntentWithHostPlaceHolderIntent()
-        //        AMSHookHelper.replaceHostPlaceHolderIntentWithPluginIntent()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // !! must first
-        ReflectUtil.init()
-        mPluginManager = PluginManager.getInstance(applicationContext)
-        mPluginManager.hookInstrumentation()
-        mPluginManager.hookCurrentActivityInstrumentation(this)
-
-//        ReflectHelper.setup()
-//        PluginManager.setup(applicationContext)
-//        PluginManager.hookActivityThreadInstrumentation()
-//        PluginManager.hookActivityInstrumentation(this)
-
         findViewById<Button>(R.id.btnStartPlugin).setOnClickListener {
             // 加载普通的插件类
+
+            // TODO: enclose DexClassLoader
             val classLoader = DexClassLoader(
                 getFileStreamPath(PLUGIN_APK_NAME).path,
                 getOptimizedDirectory(this).absolutePath,
@@ -65,11 +51,9 @@ class MainActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.btnStartPluginActivity).setOnClickListener {
             // 加载插件 Activity
-            if (mPluginManager.loadPlugin(getFileStreamPath(PLUGIN_APK_NAME).path)) {
-                startActivity(Intent().apply {
-                    component = ComponentName(PLUGIN_PACKAGE_NAME, PLUGIN_ACTIVITY)
-                })
-            }
+            startActivity(Intent().apply {
+                component = ComponentName(PLUGIN_PACKAGE_NAME, PLUGIN_ACTIVITY)
+            })
         }
     }
 }

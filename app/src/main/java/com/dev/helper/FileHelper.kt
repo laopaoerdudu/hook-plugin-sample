@@ -34,7 +34,6 @@ class FileHelper {
                     while (ins.read(buf).also { byteCount = it } != -1) {
                         fos.write(buf, 0, byteCount)
                     }
-                    Log.i("WWE", "Copy assets file to cache is succeed !")
                 }
             } catch (ex: Exception) {
                 ex.printStackTrace()
