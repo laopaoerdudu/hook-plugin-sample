@@ -31,8 +31,6 @@ public class HookedInstrumentation extends Instrumentation implements Handler.Ca
     public ActivityResult execStartActivity(
             Context who, IBinder contextThread, IBinder token, Activity target,
             Intent intent, int requestCode, Bundle options) {
-
-        if (Constants.DEBUG) Log.e(TAG, "execStartActivity");
         mPluginManager.hookToStubActivity(intent);
 
         try {

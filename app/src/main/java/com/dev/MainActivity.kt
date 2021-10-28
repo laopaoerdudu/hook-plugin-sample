@@ -3,18 +3,18 @@ package com.dev
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import com.dev.constant.HookConstant.Companion.PLUGIN_ACTIVITY
 import com.dev.constant.HookConstant.Companion.PLUGIN_APK_NAME
 import com.dev.constant.HookConstant.Companion.PLUGIN_PACKAGE_NAME
 import com.dev.helper.FileHelper.Companion.copyAssetsFileToSystemDir
 import com.dev.helper.FileHelper.Companion.getOptimizedDirectory
 import com.dev.helper.PluginHelper
-import com.dev.test.Constants
 import com.dev.test.PluginManager
+import com.dev.test.ReflectUtil
 import dalvik.system.DexClassLoader
 import java.io.File
 
@@ -36,6 +36,9 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        // !! must first
+        ReflectUtil.init()
         mPluginManager = PluginManager.getInstance(applicationContext)
         mPluginManager.hookInstrumentation()
         mPluginManager.hookCurrentActivityInstrumentation(this)
@@ -62,7 +65,7 @@ class MainActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.btnStartPluginActivity).setOnClickListener {
             // 加载插件 Activity
-            if (mPluginManager.loadPlugin(Constants.PLUGIN_PATH)) {
+            if (mPluginManager.loadPlugin(getFileStreamPath(PLUGIN_APK_NAME).path)) {
                 startActivity(Intent().apply {
                     component = ComponentName(PLUGIN_PACKAGE_NAME, PLUGIN_ACTIVITY)
                 })

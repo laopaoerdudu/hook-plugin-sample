@@ -10,6 +10,4 @@ public class Constants {
     public static final String STUB_ACTIVITY = "com.dev.PlaceHolderActivity";
     public static final String STUB_PACKAGE = "com.dev";
 
-    public static final String PLUGIN_PATH =  "/data/user/0/com.dev/files/plugin.apk";
-    public final static boolean DEBUG = true;
 }
