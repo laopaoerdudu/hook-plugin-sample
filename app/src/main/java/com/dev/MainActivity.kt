@@ -10,16 +10,16 @@ import android.widget.Toast
 import com.dev.constant.HookConstant.Companion.PLUGIN_ACTIVITY
 import com.dev.constant.HookConstant.Companion.PLUGIN_APK_NAME
 import com.dev.constant.HookConstant.Companion.PLUGIN_PACKAGE_NAME
-import com.dev.helper.AMSHookHelper
 import com.dev.helper.FileHelper.Companion.copyAssetsFileToSystemDir
 import com.dev.helper.FileHelper.Companion.getOptimizedDirectory
 import com.dev.helper.PluginHelper
-import com.dev.helper.ReflectHelper
-import com.dev.manager.PluginManager
+import com.dev.test.Constants
+import com.dev.test.PluginManager
 import dalvik.system.DexClassLoader
 import java.io.File
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var mPluginManager: PluginManager
 
     override fun attachBaseContext(newBase: Context?) {
         super.attachBaseContext(newBase)
@@ -36,11 +36,14 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        mPluginManager = PluginManager.getInstance(applicationContext)
+        mPluginManager.hookInstrumentation()
+        mPluginManager.hookCurrentActivityInstrumentation(this)
 
-        ReflectHelper.setup()
-        PluginManager.setup(applicationContext)
-        PluginManager.hookActivityThreadInstrumentation()
-        PluginManager.hookActivityInstrumentation(this)
+//        ReflectHelper.setup()
+//        PluginManager.setup(applicationContext)
+//        PluginManager.hookActivityThreadInstrumentation()
+//        PluginManager.hookActivityInstrumentation(this)
 
         findViewById<Button>(R.id.btnStartPlugin).setOnClickListener {
             // 加载普通的插件类
@@ -59,10 +62,11 @@ class MainActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.btnStartPluginActivity).setOnClickListener {
             // 加载插件 Activity
-            PluginManager.setPluginApp(PLUGIN_APK_NAME)
-            startActivity(Intent().apply {
-                component = ComponentName(PLUGIN_PACKAGE_NAME, PLUGIN_ACTIVITY)
-            })
+            if (mPluginManager.loadPlugin(Constants.PLUGIN_PATH)) {
+                startActivity(Intent().apply {
+                    component = ComponentName(PLUGIN_PACKAGE_NAME, PLUGIN_ACTIVITY)
+                })
+            }
         }
     }
 }
