@@ -101,7 +101,10 @@ class PluginHelper {
                     AssetManagerClass.getDeclaredMethod("addAssetPath", String::class.java).apply {
                         isAccessible = true
                     }
-                addAssetPathMethod.invoke(assetManager, context.getFileStreamPath(HookConstant.PLUGIN_APK_NAME).path)
+                addAssetPathMethod.invoke(
+                    assetManager,
+                    context.getFileStreamPath(HookConstant.PLUGIN_APK_NAME).path
+                )
                 return Resources(
                     assetManager,
                     context.resources.displayMetrics,
