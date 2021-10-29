@@ -35,6 +35,80 @@ object AMSHookManager {
         }
     }
 
+    fun replacePluginIntentWithPlaceHolderIntent(args: Array<Any>?) {
+        args ?: return
+        var rawIntent: Intent?
+        var index = -1
+        for (i in args.indices) {
+            if (args[i] is Intent) {
+                index = i
+                break
+            }
+        }
+        if (index != -1) {
+            rawIntent = args[index] as? Intent
+            args[index] = Intent().apply {
+                component = ComponentName(HOST_APP_PACKAGE_NAME, HOST_PLACE_HOLDER_ACTIVITY)
+                putExtra(KEY_RAW_INTENT, rawIntent)
+            }
+        }
+    }
+
+    fun replacePlaceHolderIntentWithPluginIntent(msg: Message) {
+        when (msg.what) {
+            LAUNCH_ACTIVITY -> {
+                try {
+                    val ActivityClientRecordClass = msg.obj.javaClass
+                    val intentField =
+                        ActivityClientRecordClass.getDeclaredField("intent").apply {
+                            isAccessible = true
+                        }
+                    val placeholderIntent = intentField.get(msg.obj) as? Intent
+
+                    // 把正式启动的 intent 设置进去
+                    (placeholderIntent?.getParcelableExtra(KEY_RAW_INTENT) as? Intent)?.let { pluginIntent ->
+                        intentField.set(msg.obj, pluginIntent)
+                        //placeholderIntent.setComponent(pluginIntent.component)
+                    }
+                } catch (ex: Exception) {
+                    ex.printStackTrace()
+                }
+            }
+            EXECUTE_TRANSACTION -> {
+                try {
+                    val mActivityCallbacksField =
+                        Class.forName("android.app.servertransaction.ClientTransaction")
+                            ?.getDeclaredField("mActivityCallbacks")?.apply {
+                                isAccessible = true
+                            }
+                    val mActivityCallbacks =
+                        mActivityCallbacksField?.get(msg.obj) as? List<*>
+                    mActivityCallbacks ?: return
+                    for (i in mActivityCallbacks.indices) {
+                        if ("android.app.servertransaction.LaunchActivityItem" == mActivityCallbacks[i]?.javaClass?.name) {
+                            val launchActivityItem = mActivityCallbacks[i]
+                            val mIntentField =
+                                launchActivityItem?.javaClass?.getDeclaredField("mIntent")
+                                    ?.apply {
+                                        isAccessible = true
+                                    }
+                            val placeholderIntent =
+                                mIntentField?.get(launchActivityItem) as? Intent
+                            (placeholderIntent?.getParcelableExtra(KEY_RAW_INTENT) as? Intent)?.let { pluginIntent ->
+                                mIntentField.set(launchActivityItem, pluginIntent)
+                                //placeholderIntent.setComponent(pluginIntent.component)
+                            }
+                        }
+                    }
+                } catch (ex: Exception) {
+                    ex.printStackTrace()
+                }
+            }
+            else -> {
+            }
+        }
+    }
+
     fun hookIActivityManager(context: Context?) {
         try {
             var IActivityManagerField: Field?
@@ -113,80 +187,6 @@ object AMSHookManager {
             ex.printStackTrace()
         } catch (ex: NoSuchFieldException) {
             ex.printStackTrace()
-        }
-    }
-
-    fun replacePluginIntentWithPlaceHolderIntent(args: Array<Any>?) {
-        args ?: return
-        var rawIntent: Intent?
-        var index = -1
-        for (i in args.indices) {
-            if (args[i] is Intent) {
-                index = i
-                break
-            }
-        }
-        if (index != -1) {
-            rawIntent = args[index] as? Intent
-            args[index] = Intent().apply {
-                component = ComponentName(HOST_APP_PACKAGE_NAME, HOST_PLACE_HOLDER_ACTIVITY)
-                putExtra(KEY_RAW_INTENT, rawIntent)
-            }
-        }
-    }
-
-    fun replacePlaceHolderIntentWithPluginIntent(msg: Message) {
-        when (msg.what) {
-            LAUNCH_ACTIVITY -> {
-                try {
-                    val ActivityClientRecordClass = msg.obj.javaClass
-                    val intentField =
-                        ActivityClientRecordClass.getDeclaredField("intent").apply {
-                            isAccessible = true
-                        }
-                    val placeholderIntent = intentField.get(msg.obj) as? Intent
-
-                    // 把正式启动的 intent 设置进去
-                    (placeholderIntent?.getParcelableExtra(KEY_RAW_INTENT) as? Intent)?.let { pluginIntent ->
-                        intentField.set(msg.obj, pluginIntent)
-                        //placeholderIntent.setComponent(pluginIntent.component)
-                    }
-                } catch (ex: Exception) {
-                    ex.printStackTrace()
-                }
-            }
-            EXECUTE_TRANSACTION -> {
-                try {
-                    val mActivityCallbacksField =
-                        Class.forName("android.app.servertransaction.ClientTransaction")
-                            ?.getDeclaredField("mActivityCallbacks")?.apply {
-                                isAccessible = true
-                            }
-                    val mActivityCallbacks =
-                        mActivityCallbacksField?.get(msg.obj) as? List<*>
-                    mActivityCallbacks ?: return
-                    for (i in mActivityCallbacks.indices) {
-                        if ("android.app.servertransaction.LaunchActivityItem" == mActivityCallbacks[i]?.javaClass?.name) {
-                            val launchActivityItem = mActivityCallbacks[i]
-                            val mIntentField =
-                                launchActivityItem?.javaClass?.getDeclaredField("mIntent")
-                                    ?.apply {
-                                        isAccessible = true
-                                    }
-                            val placeholderIntent =
-                                mIntentField?.get(launchActivityItem) as? Intent
-                            (placeholderIntent?.getParcelableExtra(KEY_RAW_INTENT) as? Intent)?.let { pluginIntent ->
-                                mIntentField.set(launchActivityItem, pluginIntent)
-                                //placeholderIntent.setComponent(pluginIntent.component)
-                            }
-                        }
-                    }
-                } catch (ex: Exception) {
-                    ex.printStackTrace()
-                }
-            }
-            else -> {
-            }
         }
     }
 
