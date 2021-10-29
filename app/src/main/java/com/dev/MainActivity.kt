@@ -14,6 +14,7 @@ import com.dev.framework.AMSHookManager
 import com.dev.helper.FileHelper.Companion.copyAssetsFileToSystemDir
 import com.dev.helper.FileHelper.Companion.getOptimizedDirectory
 import com.dev.helper.PluginHelper
+import com.dev.manager.PluginManager
 import java.io.File
 
 class MainActivity : AppCompatActivity() {
@@ -26,19 +27,20 @@ class MainActivity : AppCompatActivity() {
             listOf(File(getFileStreamPath(PLUGIN_APK_NAME.replace(".apk", ".dex")).absolutePath)),
             getOptimizedDirectory(this)
         )
+        PluginManager.setUp(newBase)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        AMSHookManager.setUp(this)
+        AMSHookManager.hookInstrumentation()
+        AMSHookManager.hookActivityInstrumentation(this)
         findViewById<Button>(R.id.btnStartPlugin).setOnClickListener {
             // 加载普通的插件类
-            val classLoader = PluginHelper.getPluginClassLoader(this)
-            val classType = classLoader.loadClass("$PLUGIN_PACKAGE_NAME.Util")
-            val result = classType.getDeclaredMethod("getAge").apply {
+            val classType = PluginManager.classLoader?.loadClass("$PLUGIN_PACKAGE_NAME.Util")
+            val result = classType?.getDeclaredMethod("getAge")?.apply {
                 isAccessible = true
-            }.invoke(classType.newInstance()) as? Int
+            }?.invoke(classType.newInstance()) as? Int
             Toast.makeText(this, "age = $result", Toast.LENGTH_LONG).show()
         }
 

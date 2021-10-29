@@ -13,8 +13,7 @@ import com.dev.constant.HookConstant.Companion.HOST_PLACE_HOLDER_ACTIVITY
 import com.dev.constant.HookConstant.Companion.KEY_ACTIVITY
 import com.dev.constant.HookConstant.Companion.KEY_IS_PLUGIN
 import com.dev.constant.HookConstant.Companion.KEY_PACKAGE
-import com.dev.helper.PluginHelper.Companion.getPluginClassLoader
-import com.dev.helper.PluginHelper.Companion.getPluginResource
+import com.dev.manager.PluginManager
 import com.dev.util.safeLeft
 
 class HookedInstrumentation(private val rawInstrumentation: Instrumentation) :
@@ -33,12 +32,12 @@ class HookedInstrumentation(private val rawInstrumentation: Instrumentation) :
         try {
             if (isPluginIntent(intent)) {
                 val activity = rawInstrumentation.newActivity(
-                    getPluginClassLoader(context),
+                    PluginManager.classLoader,
                     intent?.component?.className,
                     intent
                 )
                 activity?.intent = intent
-                AMSHookManager.hookResource(activity, getPluginResource(context))
+                AMSHookManager.hookResource(activity, PluginManager.resources)
                 return activity
             }
         } catch (ex: Exception) {
@@ -52,14 +51,14 @@ class HookedInstrumentation(private val rawInstrumentation: Instrumentation) :
         contextThread: IBinder,
         token: IBinder,
         target: Activity,
-        intent: Intent,
+        intent: Intent?,
         requestCode: Int,
-        options: Bundle
+        options: Bundle?
     ): ActivityResult? {
-        val targetPackageName = intent.component?.packageName
-        val targetClassName = intent.component?.className
+        val targetPackageName = intent?.component?.packageName
+        val targetClassName = intent?.component?.className
         if (HOST_APP_PACKAGE_NAME != targetPackageName) {
-            intent.apply {
+            intent?.apply {
                 setClassName(HOST_APP_PACKAGE_NAME, HOST_PLACE_HOLDER_ACTIVITY)
                 putExtra(KEY_IS_PLUGIN, true)
                 putExtra(KEY_PACKAGE, targetPackageName)

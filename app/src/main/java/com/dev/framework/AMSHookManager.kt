@@ -21,11 +21,6 @@ import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Proxy
 
 object AMSHookManager {
-    fun setUp(context: Context) {
-        hookInstrumentation()
-        hookActivityInstrumentation(context as Activity)
-    }
-
     fun hookResource(_activity: Activity?, _value: Resources?) {
         val mResourcesField = ContextThemeWrapper::class.java.getDeclaredField("mResources").apply {
             isAccessible = true
@@ -190,7 +185,7 @@ object AMSHookManager {
         }
     }
 
-    private fun hookInstrumentation() {
+    fun hookInstrumentation() {
         try {
             val ActivityThreadClass = Class.forName("android.app.ActivityThread")
             val currentActivityThreadMethod =
@@ -215,7 +210,7 @@ object AMSHookManager {
         }
     }
 
-    private fun hookActivityInstrumentation(activity: Activity) {
+    fun hookActivityInstrumentation(activity: Activity) {
         try {
             val mInstrumentationField =
                 Activity::class.java.getDeclaredField("mInstrumentation").apply {
