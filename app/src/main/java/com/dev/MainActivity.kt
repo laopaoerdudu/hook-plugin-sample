@@ -14,6 +14,7 @@ import com.dev.framework.AMSHookManager
 import com.dev.helper.FileHelper.Companion.copyAssetsFileToSystemDir
 import com.dev.helper.FileHelper.Companion.getOptimizedDirectory
 import com.dev.helper.PluginHelper
+import com.dev.helper.PluginHelper.Companion.isPluginExist
 import java.io.File
 
 class MainActivity : AppCompatActivity() {
@@ -44,9 +45,11 @@ class MainActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.btnStartPluginActivity).setOnClickListener {
             // 加载插件 Activity
-            startActivity(Intent().apply {
-                component = ComponentName(PLUGIN_PACKAGE_NAME, PLUGIN_ACTIVITY)
-            })
+            if(isPluginExist(this)) {
+                startActivity(Intent().apply {
+                    component = ComponentName(PLUGIN_PACKAGE_NAME, PLUGIN_ACTIVITY)
+                })
+            }
         }
     }
 }
