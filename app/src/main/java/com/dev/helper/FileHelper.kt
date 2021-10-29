@@ -53,7 +53,7 @@ class FileHelper {
         }
 
         fun getOptimizedDirectory(context: Context): File {
-            return context.getDir("dex", 0)
+            return context.getDir("dex", Context.MODE_PRIVATE)
         }
     }
 }

@@ -1,6 +1,8 @@
 package com.dev.helper
 
 import android.content.Context
+import android.content.res.AssetManager
+import android.content.res.Resources
 import com.dev.constant.HookConstant
 import com.dev.util.safeLeft
 import dalvik.system.DexClassLoader
@@ -87,8 +89,34 @@ class PluginHelper {
                 context.getFileStreamPath(HookConstant.PLUGIN_APK_NAME).path,
                 FileHelper.getOptimizedDirectory(context).absolutePath,
                 null,
-                Thread.currentThread().contextClassLoader
+                context.classLoader // Thread.currentThread().contextClassLoader
             )
+        }
+
+        fun getPluginResource(context: Context): Resources? {
+            try {
+                val AssetManagerClass = AssetManager::class.java
+                val assetManager = AssetManagerClass.newInstance()
+                val addAssetPathMethod =
+                    AssetManagerClass.getDeclaredMethod("addAssetPath", String::class.java).apply {
+                        isAccessible = true
+                    }
+                addAssetPathMethod.invoke(assetManager, context.getFileStreamPath(HookConstant.PLUGIN_APK_NAME).path)
+                return Resources(
+                    assetManager,
+                    context.resources.displayMetrics,
+                    context.resources.configuration
+                )
+            } catch (ex: IllegalAccessException) {
+                ex.printStackTrace()
+            } catch (ex: InstantiationException) {
+                ex.printStackTrace()
+            } catch (ex: NoSuchMethodException) {
+                ex.printStackTrace()
+            } catch (ex: InvocationTargetException) {
+                ex.printStackTrace()
+            }
+            return null
         }
     }
 }

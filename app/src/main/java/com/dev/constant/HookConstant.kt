@@ -15,5 +15,9 @@ class HookConstant {
 
         const val LAUNCH_ACTIVITY = 100
         const val EXECUTE_TRANSACTION = 159
+
+        const val KEY_IS_PLUGIN = "key_is_plugin"
+        const val KEY_PACKAGE = "key_package"
+        const val KEY_ACTIVITY = "key_activity"
     }
 }

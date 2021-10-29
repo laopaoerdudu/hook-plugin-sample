@@ -1,24 +1,38 @@
 package com.dev.framework
 
+import android.app.Activity
+import android.app.Instrumentation
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.res.Resources
 import android.os.Build
 import android.os.Handler
 import android.os.Message
+import androidx.appcompat.view.ContextThemeWrapper
 import com.dev.constant.HookConstant.Companion.EXECUTE_TRANSACTION
 import com.dev.constant.HookConstant.Companion.HOST_APP_PACKAGE_NAME
 import com.dev.constant.HookConstant.Companion.HOST_PLACE_HOLDER_ACTIVITY
 import com.dev.constant.HookConstant.Companion.KEY_RAW_INTENT
 import com.dev.constant.HookConstant.Companion.LAUNCH_ACTIVITY
+import com.dev.util.safeLeft
 import java.lang.reflect.Field
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Proxy
 
 object AMSHookManager {
-    fun setUp(context: Context?) {
-        hookIActivityManager(context)
-        hookActivityThreadHandler()
+    fun setUp(context: Context, activity: Activity) {
+        hookInstrumentation(context)
+        hookActivityInstrumentation(activity)
+    }
+
+    fun hookResource(_activity: Activity?, _value: Resources?) {
+        val mResourcesField = ContextThemeWrapper::class.java.getDeclaredField("mResources").apply {
+            isAccessible = true
+        }
+        safeLeft(_activity, _value) { activity, value ->
+            mResourcesField.set(activity, value)
+        }
     }
 
     fun hookIActivityManager(context: Context?) {
@@ -173,6 +187,47 @@ object AMSHookManager {
             }
             else -> {
             }
+        }
+    }
+
+    private fun hookInstrumentation(context: Context) {
+        try {
+            val ActivityThreadClass = Class.forName("android.app.ActivityThread")
+            val currentActivityThreadMethod =
+                ActivityThreadClass.getDeclaredMethod("currentActivityThread").apply {
+                    isAccessible = true
+                }
+            val currentActivityThread = currentActivityThreadMethod.invoke(null)
+
+            // 获取 Instrumentation
+            val mInstrumentationField =
+                ActivityThreadClass.getDeclaredField("mInstrumentation").apply {
+                    isAccessible = true
+                }
+            val mInstrumentation =
+                mInstrumentationField.get(currentActivityThread) as? Instrumentation
+            mInstrumentation ?: return
+
+            val hookedInstrumentation = HookedInstrumentation(context, mInstrumentation)
+            mInstrumentationField.set(currentActivityThread, hookedInstrumentation)
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+        }
+    }
+
+    private fun hookActivityInstrumentation(activity: Activity) {
+        try {
+            val mInstrumentationField =
+                Activity::class.java.getDeclaredField("mInstrumentation").apply {
+                    isAccessible = true
+                }
+            val mInstrumentation = mInstrumentationField.get(activity) as? Instrumentation
+            mInstrumentation ?: return
+
+            val hookedInstrumentation = HookedInstrumentation(activity, mInstrumentation)
+            mInstrumentationField.set(activity, hookedInstrumentation)
+        } catch (ex: Exception) {
+            ex.printStackTrace()
         }
     }
 }

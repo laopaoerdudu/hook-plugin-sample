@@ -26,12 +26,12 @@ class MainActivity : AppCompatActivity() {
             listOf(File(getFileStreamPath(PLUGIN_APK_NAME.replace(".apk", ".dex")).absolutePath)),
             getOptimizedDirectory(this)
         )
-        //AMSHookManager.setUp(newBase)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        AMSHookManager.setUp(applicationContext, this)
         findViewById<Button>(R.id.btnStartPlugin).setOnClickListener {
             // 加载普通的插件类
             val classLoader = PluginHelper.getPluginClassLoader(this)
