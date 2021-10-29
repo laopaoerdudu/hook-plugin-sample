@@ -10,10 +10,10 @@ import androidx.appcompat.app.AppCompatActivity
 import com.dev.constant.HookConstant.Companion.PLUGIN_ACTIVITY
 import com.dev.constant.HookConstant.Companion.PLUGIN_APK_NAME
 import com.dev.constant.HookConstant.Companion.PLUGIN_PACKAGE_NAME
+import com.dev.framework.AMSHookManager
 import com.dev.helper.FileHelper.Companion.copyAssetsFileToSystemDir
 import com.dev.helper.FileHelper.Companion.getOptimizedDirectory
 import com.dev.helper.PluginHelper
-import dalvik.system.DexClassLoader
 import java.io.File
 
 class MainActivity : AppCompatActivity() {
@@ -26,22 +26,15 @@ class MainActivity : AppCompatActivity() {
             listOf(File(getFileStreamPath(PLUGIN_APK_NAME.replace(".apk", ".dex")).absolutePath)),
             getOptimizedDirectory(this)
         )
+        //AMSHookManager.setUp(newBase)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
         findViewById<Button>(R.id.btnStartPlugin).setOnClickListener {
             // 加载普通的插件类
-
-            // TODO: enclose DexClassLoader
-            val classLoader = DexClassLoader(
-                getFileStreamPath(PLUGIN_APK_NAME).path,
-                getOptimizedDirectory(this).absolutePath,
-                null,
-                classLoader
-            )
+            val classLoader = PluginHelper.getPluginClassLoader(this)
             val classType = classLoader.loadClass("$PLUGIN_PACKAGE_NAME.Util")
             val result = classType.getDeclaredMethod("getAge").apply {
                 isAccessible = true

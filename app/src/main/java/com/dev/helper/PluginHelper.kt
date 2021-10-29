@@ -1,6 +1,9 @@
 package com.dev.helper
 
+import android.content.Context
+import com.dev.constant.HookConstant
 import com.dev.util.safeLeft
+import dalvik.system.DexClassLoader
 import java.io.File
 import java.io.IOException
 import java.lang.reflect.InvocationTargetException
@@ -77,6 +80,15 @@ class PluginHelper {
             } catch (ex: InvocationTargetException) {
                 ex.printStackTrace()
             }
+        }
+
+        fun getPluginClassLoader(context: Context): DexClassLoader {
+            return DexClassLoader(
+                context.getFileStreamPath(HookConstant.PLUGIN_APK_NAME).path,
+                FileHelper.getOptimizedDirectory(context).absolutePath,
+                null,
+                Thread.currentThread().contextClassLoader
+            )
         }
     }
 }
