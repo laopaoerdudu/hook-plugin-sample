@@ -14,7 +14,6 @@ import com.dev.framework.AMSHookManager
 import com.dev.helper.FileHelper.Companion.copyAssetsFileToSystemDir
 import com.dev.helper.FileHelper.Companion.getOptimizedDirectory
 import com.dev.helper.PluginHelper
-import com.dev.helper.PluginHelper.Companion.isPluginExist
 import java.io.File
 
 class MainActivity : AppCompatActivity() {
@@ -32,7 +31,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        AMSHookManager.setUp(applicationContext, this)
+        AMSHookManager.setUp(this)
         findViewById<Button>(R.id.btnStartPlugin).setOnClickListener {
             // 加载普通的插件类
             val classLoader = PluginHelper.getPluginClassLoader(this)
@@ -45,11 +44,9 @@ class MainActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.btnStartPluginActivity).setOnClickListener {
             // 加载插件 Activity
-            if(isPluginExist(this)) {
-                startActivity(Intent().apply {
-                    component = ComponentName(PLUGIN_PACKAGE_NAME, PLUGIN_ACTIVITY)
-                })
-            }
+            startActivity(Intent().apply {
+                component = ComponentName(PLUGIN_PACKAGE_NAME, PLUGIN_ACTIVITY)
+            })
         }
     }
 }

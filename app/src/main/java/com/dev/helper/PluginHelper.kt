@@ -121,9 +121,5 @@ class PluginHelper {
             }
             return null
         }
-
-        fun isPluginExist(context: Context): Boolean {
-            return getPluginClassLoader(context) != null && getPluginResource(context) != null
-        }
     }
 }

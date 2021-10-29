@@ -21,9 +21,9 @@ import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Proxy
 
 object AMSHookManager {
-    fun setUp(context: Context, activity: Activity) {
-        hookInstrumentation(context)
-        hookActivityInstrumentation(activity)
+    fun setUp(context: Context) {
+        hookInstrumentation()
+        hookActivityInstrumentation(context as Activity)
     }
 
     fun hookResource(_activity: Activity?, _value: Resources?) {
@@ -190,7 +190,7 @@ object AMSHookManager {
         }
     }
 
-    private fun hookInstrumentation(context: Context) {
+    private fun hookInstrumentation() {
         try {
             val ActivityThreadClass = Class.forName("android.app.ActivityThread")
             val currentActivityThreadMethod =
@@ -208,7 +208,7 @@ object AMSHookManager {
                 mInstrumentationField.get(currentActivityThread) as? Instrumentation
             mInstrumentation ?: return
 
-            val hookedInstrumentation = HookedInstrumentation(context, mInstrumentation)
+            val hookedInstrumentation = HookedInstrumentation(mInstrumentation)
             mInstrumentationField.set(currentActivityThread, hookedInstrumentation)
         } catch (ex: Exception) {
             ex.printStackTrace()
@@ -224,7 +224,7 @@ object AMSHookManager {
             val mInstrumentation = mInstrumentationField.get(activity) as? Instrumentation
             mInstrumentation ?: return
 
-            val hookedInstrumentation = HookedInstrumentation(activity, mInstrumentation)
+            val hookedInstrumentation = HookedInstrumentation(mInstrumentation)
             mInstrumentationField.set(activity, hookedInstrumentation)
         } catch (ex: Exception) {
             ex.printStackTrace()

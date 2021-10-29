@@ -17,10 +17,9 @@ import com.dev.helper.PluginHelper.Companion.getPluginClassLoader
 import com.dev.helper.PluginHelper.Companion.getPluginResource
 import com.dev.util.safeLeft
 
-class HookedInstrumentation(context: Context, private val rawInstrumentation: Instrumentation) :
+class HookedInstrumentation(private val rawInstrumentation: Instrumentation) :
     Instrumentation(),
     Handler.Callback {
-    private var mContext: Context = context
 
     override fun callActivityOnCreate(activity: Activity?, icicle: Bundle?) {
         super.callActivityOnCreate(activity, icicle)
@@ -34,12 +33,12 @@ class HookedInstrumentation(context: Context, private val rawInstrumentation: In
         try {
             if (isPluginIntent(intent)) {
                 val activity = rawInstrumentation.newActivity(
-                    getPluginClassLoader(mContext),
+                    getPluginClassLoader(context),
                     intent?.component?.className,
                     intent
                 )
                 activity?.intent = intent
-                AMSHookManager.hookResource(activity, getPluginResource(mContext))
+                AMSHookManager.hookResource(activity, getPluginResource(context))
                 return activity
             }
         } catch (ex: Exception) {
