@@ -77,6 +77,7 @@ object AMSHookManager {
         }
     }
 
+    @Deprecated("Temporarily useless")
     fun replacePluginIntentWithPlaceHolderIntent(args: Array<Any>?) {
         args ?: return
         var rawIntent: Intent?
@@ -96,6 +97,7 @@ object AMSHookManager {
         }
     }
 
+    @Deprecated("Temporarily useless")
     fun replacePlaceHolderIntentWithPluginIntent(msg: Message) {
         when (msg.what) {
             LAUNCH_ACTIVITY -> {
@@ -151,6 +153,7 @@ object AMSHookManager {
         }
     }
 
+    @Deprecated("Temporarily useless")
     fun hookIActivityManager(context: Context?) {
         try {
             var IActivityManagerField: Field?
@@ -199,6 +202,7 @@ object AMSHookManager {
         }
     }
 
+    @Deprecated("Temporarily useless")
     fun hookActivityThreadHandler() {
         // 获取 ActivityThread
         try {
