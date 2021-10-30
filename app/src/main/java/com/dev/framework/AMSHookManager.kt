@@ -15,25 +15,24 @@ import com.dev.constant.HookConstant.Companion.HOST_APP_PACKAGE_NAME
 import com.dev.constant.HookConstant.Companion.HOST_PLACE_HOLDER_ACTIVITY
 import com.dev.constant.HookConstant.Companion.KEY_RAW_INTENT
 import com.dev.constant.HookConstant.Companion.LAUNCH_ACTIVITY
-import com.dev.util.safeLeft
 import java.lang.reflect.Field
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Proxy
 
 object AMSHookManager {
 
-    fun hookInstrumentation() {
+    fun hookActivityThreadInstrumentation() {
         try {
-            val ActivityThreadClass = Class.forName("android.app.ActivityThread")
+            val activityThreadClass = Class.forName("android.app.ActivityThread")
             val currentActivityThreadMethod =
-                ActivityThreadClass.getDeclaredMethod("currentActivityThread").apply {
+                activityThreadClass.getDeclaredMethod("currentActivityThread").apply {
                     isAccessible = true
                 }
             val currentActivityThread = currentActivityThreadMethod.invoke(null)
 
             // 获取 Instrumentation
             val mInstrumentationField =
-                ActivityThreadClass.getDeclaredField("mInstrumentation").apply {
+                activityThreadClass.getDeclaredField("mInstrumentation").apply {
                     isAccessible = true
                 }
             val mInstrumentation =
@@ -63,15 +62,13 @@ object AMSHookManager {
         }
     }
 
-    fun hookResource(_activity: Activity?, _value: Resources?) {
+    fun hookResource(activity: Activity?, value: Resources?) {
         try {
             val mResourcesField =
                 ContextThemeWrapper::class.java.getDeclaredField("mResources").apply {
                     isAccessible = true
                 }
-            safeLeft(_activity, _value) { activity, value ->
-                mResourcesField.set(activity, value)
-            }
+            mResourcesField.set(activity, value)
         } catch (ex: Exception) {
             ex.printStackTrace()
         }

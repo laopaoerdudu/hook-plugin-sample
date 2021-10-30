@@ -61,11 +61,11 @@ public class HookedInstrumentation extends Instrumentation implements Handler.Ca
             intent.putExtra(KEY_ACTIVITY, intent.getComponent().getClassName());
         }
         try {
-            Method execStartActivity = Instrumentation.class.getDeclaredMethod(
+            Method execStartActivityMethod = Instrumentation.class.getDeclaredMethod(
                     "execStartActivity", Context.class, IBinder.class, IBinder.class,
                     Activity.class, Intent.class, int.class, Bundle.class);
-            execStartActivity.setAccessible(true);
-            return (ActivityResult) execStartActivity.invoke(rawInstrumentation, who,
+            execStartActivityMethod.setAccessible(true);
+            return (ActivityResult) execStartActivityMethod.invoke(rawInstrumentation, who,
                     contextThread, token, target, intent, requestCode, options);
         } catch (Exception e) {
             e.printStackTrace();
