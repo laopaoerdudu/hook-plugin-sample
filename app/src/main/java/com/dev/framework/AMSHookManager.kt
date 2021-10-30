@@ -21,12 +21,59 @@ import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Proxy
 
 object AMSHookManager {
-    fun hookResource(_activity: Activity?, _value: Resources?) {
-        val mResourcesField = ContextThemeWrapper::class.java.getDeclaredField("mResources").apply {
-            isAccessible = true
+
+    fun hookInstrumentation() {
+        try {
+            val ActivityThreadClass = Class.forName("android.app.ActivityThread")
+            val currentActivityThreadMethod =
+                ActivityThreadClass.getDeclaredMethod("currentActivityThread").apply {
+                    isAccessible = true
+                }
+            val currentActivityThread = currentActivityThreadMethod.invoke(null)
+
+            // 获取 Instrumentation
+            val mInstrumentationField =
+                ActivityThreadClass.getDeclaredField("mInstrumentation").apply {
+                    isAccessible = true
+                }
+            val mInstrumentation =
+                mInstrumentationField.get(currentActivityThread) as? Instrumentation
+            mInstrumentation ?: return
+
+            val hookedInstrumentation = HookedInstrumentation(mInstrumentation)
+            mInstrumentationField.set(currentActivityThread, hookedInstrumentation)
+        } catch (ex: Exception) {
+            ex.printStackTrace()
         }
-        safeLeft(_activity, _value) { activity, value ->
-            mResourcesField.set(activity, value)
+    }
+
+    fun hookActivityInstrumentation(activity: Activity) {
+        try {
+            val mInstrumentationField =
+                Activity::class.java.getDeclaredField("mInstrumentation").apply {
+                    isAccessible = true
+                }
+            val mInstrumentation = mInstrumentationField.get(activity) as? Instrumentation
+            mInstrumentation ?: return
+
+            val hookedInstrumentation = HookedInstrumentation(mInstrumentation)
+            mInstrumentationField.set(activity, hookedInstrumentation)
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+        }
+    }
+
+    fun hookResource(_activity: Activity?, _value: Resources?) {
+        try {
+            val mResourcesField =
+                ContextThemeWrapper::class.java.getDeclaredField("mResources").apply {
+                    isAccessible = true
+                }
+            safeLeft(_activity, _value) { activity, value ->
+                mResourcesField.set(activity, value)
+            }
+        } catch (ex: Exception) {
+            ex.printStackTrace()
         }
     }
 
@@ -181,47 +228,6 @@ object AMSHookManager {
         } catch (ex: IllegalAccessException) {
             ex.printStackTrace()
         } catch (ex: NoSuchFieldException) {
-            ex.printStackTrace()
-        }
-    }
-
-    fun hookInstrumentation() {
-        try {
-            val ActivityThreadClass = Class.forName("android.app.ActivityThread")
-            val currentActivityThreadMethod =
-                ActivityThreadClass.getDeclaredMethod("currentActivityThread").apply {
-                    isAccessible = true
-                }
-            val currentActivityThread = currentActivityThreadMethod.invoke(null)
-
-            // 获取 Instrumentation
-            val mInstrumentationField =
-                ActivityThreadClass.getDeclaredField("mInstrumentation").apply {
-                    isAccessible = true
-                }
-            val mInstrumentation =
-                mInstrumentationField.get(currentActivityThread) as? Instrumentation
-            mInstrumentation ?: return
-
-            val hookedInstrumentation = HookedInstrumentation(mInstrumentation)
-            mInstrumentationField.set(currentActivityThread, hookedInstrumentation)
-        } catch (ex: Exception) {
-            ex.printStackTrace()
-        }
-    }
-
-    fun hookActivityInstrumentation(activity: Activity) {
-        try {
-            val mInstrumentationField =
-                Activity::class.java.getDeclaredField("mInstrumentation").apply {
-                    isAccessible = true
-                }
-            val mInstrumentation = mInstrumentationField.get(activity) as? Instrumentation
-            mInstrumentation ?: return
-
-            val hookedInstrumentation = HookedInstrumentation(mInstrumentation)
-            mInstrumentationField.set(activity, hookedInstrumentation)
-        } catch (ex: Exception) {
             ex.printStackTrace()
         }
     }
