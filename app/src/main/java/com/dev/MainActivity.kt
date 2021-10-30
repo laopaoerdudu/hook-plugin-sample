@@ -11,21 +11,20 @@ import com.dev.constant.HookConstant.Companion.PLUGIN_ACTIVITY
 import com.dev.constant.HookConstant.Companion.PLUGIN_APK_NAME
 import com.dev.constant.HookConstant.Companion.PLUGIN_PACKAGE_NAME
 import com.dev.framework.manager.HookManager
-import com.dev.helper.FileHelper.Companion.copyAssetsFileToSystemDir
-import com.dev.helper.FileHelper.Companion.getOptimizedDirectory
 import com.dev.helper.PluginHelper
 import com.dev.framework.manager.PluginManager
+import com.dev.helper.FileHelper
 import java.io.File
 
 class MainActivity : AppCompatActivity() {
 
     override fun attachBaseContext(newBase: Context?) {
         super.attachBaseContext(newBase)
-        copyAssetsFileToSystemDir(this, PLUGIN_APK_NAME)
+        FileHelper.copyAssetsFileToSystemDir(this, PLUGIN_APK_NAME)
         PluginHelper.loadPlugin(
             classLoader,
             listOf(File(getFileStreamPath(PLUGIN_APK_NAME.replace(".apk", ".dex")).absolutePath)),
-            getOptimizedDirectory(this)
+            FileHelper.getOptimizedDirectory(this)
         )
     }
 
@@ -36,7 +35,6 @@ class MainActivity : AppCompatActivity() {
         HookManager.hookActivityThreadInstrumentation()
         HookManager.hookActivityInstrumentation(this)
         findViewById<Button>(R.id.btnStartPlugin).setOnClickListener {
-            // 加载普通的插件类
             val classType = PluginManager.classLoader?.loadClass("$PLUGIN_PACKAGE_NAME.Util")
             val result = classType?.getDeclaredMethod("getAge")?.apply {
                 isAccessible = true

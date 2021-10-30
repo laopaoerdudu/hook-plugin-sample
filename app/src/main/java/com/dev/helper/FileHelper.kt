@@ -2,6 +2,7 @@ package com.dev.helper
 
 import android.content.Context
 import android.util.Log
+import com.dev.constant.HookConstant
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -54,6 +55,10 @@ class FileHelper {
 
         fun getOptimizedDirectory(context: Context): File {
             return context.getDir("dex", Context.MODE_PRIVATE)
+        }
+
+        fun getDexPath(context: Context): String {
+            return context.getFileStreamPath(HookConstant.PLUGIN_APK_NAME).path
         }
     }
 }

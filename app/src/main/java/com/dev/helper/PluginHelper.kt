@@ -3,7 +3,6 @@ package com.dev.helper
 import android.content.Context
 import android.content.res.AssetManager
 import android.content.res.Resources
-import com.dev.constant.HookConstant
 import com.dev.util.safeLeft
 import dalvik.system.DexClassLoader
 import java.io.File
@@ -86,7 +85,7 @@ class PluginHelper {
 
         fun getPluginClassLoader(context: Context): DexClassLoader {
             return DexClassLoader(
-                context.getFileStreamPath(HookConstant.PLUGIN_APK_NAME).path,
+                FileHelper.getDexPath(context),
                 FileHelper.getOptimizedDirectory(context).absolutePath,
                 null,
                 context.classLoader // Thread.currentThread().contextClassLoader
@@ -95,15 +94,15 @@ class PluginHelper {
 
         fun getPluginResource(context: Context): Resources? {
             try {
-                val AssetManagerClass = AssetManager::class.java
-                val assetManager = AssetManagerClass.newInstance()
+                val assetManagerClass = AssetManager::class.java
+                val assetManager = assetManagerClass.newInstance()
                 val addAssetPathMethod =
-                    AssetManagerClass.getDeclaredMethod("addAssetPath", String::class.java).apply {
+                    assetManagerClass.getDeclaredMethod("addAssetPath", String::class.java).apply {
                         isAccessible = true
                     }
                 addAssetPathMethod.invoke(
                     assetManager,
-                    context.getFileStreamPath(HookConstant.PLUGIN_APK_NAME).path
+                    FileHelper.getDexPath(context)
                 )
                 return Resources(
                     assetManager,
