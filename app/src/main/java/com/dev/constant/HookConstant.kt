@@ -9,15 +9,20 @@ class HookConstant {
         const val PLUGIN_PACKAGE_NAME = "com.dev.plugin"
         const val PLUGIN_ACTIVITY = "com.dev.plugin.MainActivity"
 
-        const val START_ACTIVITY_METHOD_NAME = "startActivity"
-
-        const val KEY_RAW_INTENT = "raw_intent"
-
-        const val LAUNCH_ACTIVITY = 100
-        const val EXECUTE_TRANSACTION = 159
-
         const val KEY_IS_PLUGIN = "key_is_plugin"
         const val KEY_PACKAGE = "key_package"
         const val KEY_ACTIVITY = "key_activity"
+
+        @Deprecated("Temporarily useless")
+        const val START_ACTIVITY_METHOD_NAME = "startActivity"
+
+        @Deprecated("Temporarily useless")
+        const val KEY_RAW_INTENT = "raw_intent"
+
+        @Deprecated("Temporarily useless")
+        const val LAUNCH_ACTIVITY = 100
+
+        @Deprecated("Temporarily useless")
+        const val EXECUTE_TRANSACTION = 159
     }
 }
