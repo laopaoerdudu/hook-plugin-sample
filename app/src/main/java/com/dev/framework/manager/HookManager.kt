@@ -40,8 +40,6 @@ object HookManager {
                 }
             val mInstrumentation =
                 mInstrumentationField.get(currentActivityThread) as? Instrumentation
-            mInstrumentation ?: return
-
             val hookedInstrumentation = HookedInstrumentation(mInstrumentation)
             mInstrumentationField.set(currentActivityThread, hookedInstrumentation)
         } catch (ex: Exception) {
@@ -56,8 +54,6 @@ object HookManager {
                     isAccessible = true
                 }
             val mInstrumentation = mInstrumentationField.get(activity) as? Instrumentation
-            mInstrumentation ?: return
-
             val hookedInstrumentation = HookedInstrumentation(mInstrumentation)
             mInstrumentationField.set(activity, hookedInstrumentation)
         } catch (ex: Exception) {
@@ -102,9 +98,9 @@ object HookManager {
         when (msg.what) {
             LAUNCH_ACTIVITY -> {
                 try {
-                    val ActivityClientRecordClass = msg.obj.javaClass
+                    val activityClientRecordClass = msg.obj.javaClass
                     val intentField =
-                        ActivityClientRecordClass.getDeclaredField("intent").apply {
+                        activityClientRecordClass.getDeclaredField("intent").apply {
                             isAccessible = true
                         }
                     val placeholderIntent = intentField.get(msg.obj) as? Intent
