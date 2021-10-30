@@ -10,11 +10,11 @@ import androidx.appcompat.app.AppCompatActivity
 import com.dev.constant.HookConstant.Companion.PLUGIN_ACTIVITY
 import com.dev.constant.HookConstant.Companion.PLUGIN_APK_NAME
 import com.dev.constant.HookConstant.Companion.PLUGIN_PACKAGE_NAME
-import com.dev.framework.AMSHookManager
+import com.dev.framework.manager.AMSHookManager
 import com.dev.helper.FileHelper.Companion.copyAssetsFileToSystemDir
 import com.dev.helper.FileHelper.Companion.getOptimizedDirectory
 import com.dev.helper.PluginHelper
-import com.dev.manager.PluginManager
+import com.dev.framework.manager.PluginManager
 import java.io.File
 
 class MainActivity : AppCompatActivity() {

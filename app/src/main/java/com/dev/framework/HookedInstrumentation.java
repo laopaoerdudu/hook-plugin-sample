@@ -9,7 +9,8 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 
-import com.dev.manager.PluginManager;
+import com.dev.framework.manager.AMSHookManager;
+import com.dev.framework.manager.PluginManager;
 
 import java.lang.reflect.Method;
 

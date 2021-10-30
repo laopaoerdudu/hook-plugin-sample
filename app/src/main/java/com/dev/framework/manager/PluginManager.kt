@@ -1,4 +1,4 @@
-package com.dev.manager
+package com.dev.framework.manager
 
 import android.content.Context
 import android.content.res.Resources

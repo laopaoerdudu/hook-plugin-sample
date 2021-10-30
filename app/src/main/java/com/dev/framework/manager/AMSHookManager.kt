@@ -1,4 +1,4 @@
-package com.dev.framework
+package com.dev.framework.manager
 
 import android.app.Activity
 import android.app.Instrumentation
@@ -15,6 +15,9 @@ import com.dev.constant.HookConstant.Companion.HOST_APP_PACKAGE_NAME
 import com.dev.constant.HookConstant.Companion.HOST_PLACE_HOLDER_ACTIVITY
 import com.dev.constant.HookConstant.Companion.KEY_RAW_INTENT
 import com.dev.constant.HookConstant.Companion.LAUNCH_ACTIVITY
+import com.dev.framework.ActivityThreadHandlerCallback
+import com.dev.framework.HookedInstrumentation
+import com.dev.framework.IActivityManagerHandler
 import java.lang.reflect.Field
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Proxy

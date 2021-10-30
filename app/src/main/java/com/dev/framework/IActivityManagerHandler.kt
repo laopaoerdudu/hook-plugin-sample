@@ -2,6 +2,7 @@ package com.dev.framework
 
 import android.content.Context
 import com.dev.constant.HookConstant.Companion.START_ACTIVITY_METHOD_NAME
+import com.dev.framework.manager.AMSHookManager
 import java.lang.reflect.InvocationHandler
 import java.lang.reflect.Method
 
