@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.util.Log;
 
 import com.dev.framework.manager.HookManager;
 import com.dev.framework.manager.PluginManager;
@@ -43,8 +44,10 @@ public class HookedInstrumentation extends Instrumentation implements Handler.Ca
     public Activity newActivity(ClassLoader cl, String className, Intent intent) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
         if (isPluginIntent(intent)) {
             String targetClassName = intent.getComponent().getClassName();
+            Log.i("WWE", "newActivity -> targetClassName -> " + targetClassName);
             Activity activity = rawInstrumentation.newActivity(PluginManager.INSTANCE.getClassLoader(), targetClassName, intent);
             activity.setIntent(intent);
+            Log.i("WWE", "newActivity -> activity -> " + activity.getClass().getName());
             HookManager.INSTANCE.hookResource(activity, PluginManager.INSTANCE.getResources());
             return activity;
         }

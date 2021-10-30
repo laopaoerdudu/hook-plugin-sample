@@ -43,7 +43,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         findViewById<Button>(R.id.btnStartPluginActivity).setOnClickListener {
-            // 加载插件 Activity
             startActivity(Intent().apply {
                 component = ComponentName(PLUGIN_PACKAGE_NAME, PLUGIN_ACTIVITY)
             })
