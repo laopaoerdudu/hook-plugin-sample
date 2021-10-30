@@ -9,7 +9,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 
-import com.dev.framework.manager.AMSHookManager;
+import com.dev.framework.manager.HookManager;
 import com.dev.framework.manager.PluginManager;
 
 import java.lang.reflect.Method;
@@ -45,7 +45,7 @@ public class HookedInstrumentation extends Instrumentation implements Handler.Ca
             String targetClassName = intent.getComponent().getClassName();
             Activity activity = rawInstrumentation.newActivity(PluginManager.INSTANCE.getClassLoader(), targetClassName, intent);
             activity.setIntent(intent);
-            AMSHookManager.INSTANCE.hookResource(activity, PluginManager.INSTANCE.getResources());
+            HookManager.INSTANCE.hookResource(activity, PluginManager.INSTANCE.getResources());
             return activity;
         }
         return super.newActivity(cl, className, intent);

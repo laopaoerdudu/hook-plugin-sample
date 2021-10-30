@@ -10,7 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.dev.constant.HookConstant.Companion.PLUGIN_ACTIVITY
 import com.dev.constant.HookConstant.Companion.PLUGIN_APK_NAME
 import com.dev.constant.HookConstant.Companion.PLUGIN_PACKAGE_NAME
-import com.dev.framework.manager.AMSHookManager
+import com.dev.framework.manager.HookManager
 import com.dev.helper.FileHelper.Companion.copyAssetsFileToSystemDir
 import com.dev.helper.FileHelper.Companion.getOptimizedDirectory
 import com.dev.helper.PluginHelper
@@ -33,8 +33,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         PluginManager.setUp(applicationContext)
-        AMSHookManager.hookActivityThreadInstrumentation()
-        AMSHookManager.hookActivityInstrumentation(this)
+        HookManager.hookActivityThreadInstrumentation()
+        HookManager.hookActivityInstrumentation(this)
         findViewById<Button>(R.id.btnStartPlugin).setOnClickListener {
             // 加载普通的插件类
             val classType = PluginManager.classLoader?.loadClass("$PLUGIN_PACKAGE_NAME.Util")

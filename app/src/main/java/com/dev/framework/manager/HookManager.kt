@@ -22,7 +22,7 @@ import java.lang.reflect.Field
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Proxy
 
-object AMSHookManager {
+object HookManager {
 
     fun hookActivityThreadInstrumentation() {
         try {
