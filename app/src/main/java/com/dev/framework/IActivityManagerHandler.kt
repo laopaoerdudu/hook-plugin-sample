@@ -6,7 +6,7 @@ import com.dev.framework.manager.AMSHookManager
 import java.lang.reflect.InvocationHandler
 import java.lang.reflect.Method
 
-// TODO: 是否用 java 类替换
+@Deprecated("Temporarily useless")
 class IActivityManagerHandler(context: Context?, private val rawIActivityManager: Any?) :
     InvocationHandler {
 
