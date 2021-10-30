@@ -1,6 +1,10 @@
 package com.dev.helper
 
+import android.content.Context
+import android.content.res.AssetManager
+import android.content.res.Resources
 import com.dev.util.safeLeft
+import dalvik.system.DexClassLoader
 import java.io.File
 import java.io.IOException
 import java.lang.reflect.InvocationTargetException
@@ -77,6 +81,44 @@ class PluginHelper {
             } catch (ex: InvocationTargetException) {
                 ex.printStackTrace()
             }
+        }
+
+        fun getPluginClassLoader(context: Context): DexClassLoader {
+            return DexClassLoader(
+                FileHelper.getDexPath(context),
+                FileHelper.getOptimizedDirectory(context).absolutePath,
+                null,
+                context.classLoader // Thread.currentThread().contextClassLoader
+            )
+        }
+
+        fun getPluginResource(context: Context): Resources? {
+            try {
+                val assetManagerClass = AssetManager::class.java
+                val assetManager = assetManagerClass.newInstance()
+                val addAssetPathMethod =
+                    assetManagerClass.getDeclaredMethod("addAssetPath", String::class.java).apply {
+                        isAccessible = true
+                    }
+                addAssetPathMethod.invoke(
+                    assetManager,
+                    FileHelper.getDexPath(context)
+                )
+                return Resources(
+                    assetManager,
+                    context.resources.displayMetrics,
+                    context.resources.configuration
+                )
+            } catch (ex: IllegalAccessException) {
+                ex.printStackTrace()
+            } catch (ex: InstantiationException) {
+                ex.printStackTrace()
+            } catch (ex: NoSuchMethodException) {
+                ex.printStackTrace()
+            } catch (ex: InvocationTargetException) {
+                ex.printStackTrace()
+            }
+            return null
         }
     }
 }

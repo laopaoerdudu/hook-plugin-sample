@@ -2,6 +2,7 @@ package com.dev.helper
 
 import android.content.Context
 import android.util.Log
+import com.dev.constant.HookConstant
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -34,7 +35,6 @@ class FileHelper {
                     while (ins.read(buf).also { byteCount = it } != -1) {
                         fos.write(buf, 0, byteCount)
                     }
-                    Log.i("WWE", "Copy assets file to cache is succeed !")
                 }
             } catch (ex: Exception) {
                 ex.printStackTrace()
@@ -54,7 +54,11 @@ class FileHelper {
         }
 
         fun getOptimizedDirectory(context: Context): File {
-            return context.getDir("dex", 0)
+            return context.getDir("dex", Context.MODE_PRIVATE)
+        }
+
+        fun getDexPath(context: Context): String {
+            return context.getFileStreamPath(HookConstant.PLUGIN_APK_NAME).path
         }
     }
 }

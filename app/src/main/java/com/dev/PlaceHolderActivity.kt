@@ -9,6 +9,5 @@ class PlaceHolderActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        Log.i("WWE",  "PlaceHolderActivity #onCreate >>>")
     }
 }
