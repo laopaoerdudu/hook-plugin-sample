@@ -2,6 +2,7 @@ package com.dev.plugin
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import android.widget.TextView
 import android.widget.Toast
@@ -14,5 +15,25 @@ class MainActivity : AppCompatActivity() {
             text = "插件化"
             gravity = Gravity.CENTER
         })
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.i("WWE", "Plugin onResume >>>")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Log.i("WWE", "Plugin onPause >>>")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Log.i("WWE", "Plugin onStop >>>")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.i("WWE", "Plugin onDestroy >>>")
     }
 }
