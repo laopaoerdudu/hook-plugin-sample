@@ -1,4 +1,4 @@
-package com.dev.framework.manager
+package com.dev.manager
 
 import android.app.Activity
 import android.app.Instrumentation
@@ -13,16 +13,33 @@ import androidx.appcompat.view.ContextThemeWrapper
 import com.dev.constant.HookConstant.Companion.EXECUTE_TRANSACTION
 import com.dev.constant.HookConstant.Companion.HOST_APP_PACKAGE_NAME
 import com.dev.constant.HookConstant.Companion.HOST_PLACE_HOLDER_ACTIVITY
+import com.dev.constant.HookConstant.Companion.KEY_ACTIVITY
+import com.dev.constant.HookConstant.Companion.KEY_IS_PLUGIN
+import com.dev.constant.HookConstant.Companion.KEY_PACKAGE
 import com.dev.constant.HookConstant.Companion.KEY_RAW_INTENT
 import com.dev.constant.HookConstant.Companion.LAUNCH_ACTIVITY
 import com.dev.framework.ActivityThreadHandlerCallback
 import com.dev.framework.HookedInstrumentation
 import com.dev.framework.IActivityManagerHandler
+import com.dev.helper.PluginHelper
+import com.dev.util.safeLeft
+import dalvik.system.DexClassLoader
 import java.lang.reflect.Field
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Proxy
 
 object HookManager {
+    var classLoader: DexClassLoader? = null
+    var resources: Resources? = null
+    var mContext: Context? = null
+
+    fun setUp(context: Context?) {
+        context?.let {
+            mContext = it
+            classLoader = PluginHelper.getPluginClassLoader(it)
+            resources = PluginHelper.getPluginResource(it)
+        }
+    }
 
     fun hookActivityThreadInstrumentation() {
         try {
@@ -71,6 +88,32 @@ object HookManager {
         } catch (ex: Exception) {
             ex.printStackTrace()
         }
+    }
+
+    fun setPlaceHolderIntent(intent: Intent) {
+        val targetPackageName = intent.component?.packageName
+        val targetClassName = intent.component?.className
+        if (mContext?.packageName != targetPackageName) {
+            intent.apply {
+                setClassName(HOST_APP_PACKAGE_NAME, HOST_PLACE_HOLDER_ACTIVITY)
+                putExtra(KEY_IS_PLUGIN, true)
+                putExtra(KEY_PACKAGE, targetPackageName)
+                putExtra(KEY_ACTIVITY, targetClassName)
+            }
+        }
+    }
+
+    fun isPluginIntentSetup(intent: Intent): Boolean {
+        if (intent.getBooleanExtra(KEY_IS_PLUGIN, false)) {
+            safeLeft(
+                intent.getStringExtra(KEY_PACKAGE),
+                intent.getStringExtra(KEY_ACTIVITY)
+            ) { pkg, activity ->
+                intent.setClassName(pkg, activity)
+            }
+            return true
+        }
+        return false
     }
 
     @Deprecated("Temporarily useless")

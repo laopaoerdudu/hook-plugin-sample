@@ -9,15 +9,11 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 
-import com.dev.framework.manager.HookManager;
-import com.dev.framework.manager.PluginManager;
+import com.dev.manager.HookManager;
+
 import java.lang.reflect.Method;
+
 import androidx.annotation.NonNull;
-import static com.dev.constant.HookConstant.HOST_APP_PACKAGE_NAME;
-import static com.dev.constant.HookConstant.HOST_PLACE_HOLDER_ACTIVITY;
-import static com.dev.constant.HookConstant.KEY_ACTIVITY;
-import static com.dev.constant.HookConstant.KEY_IS_PLUGIN;
-import static com.dev.constant.HookConstant.KEY_PACKAGE;
 
 public class HookedInstrumentation extends Instrumentation implements Handler.Callback {
     private Instrumentation rawInstrumentation;
@@ -38,11 +34,11 @@ public class HookedInstrumentation extends Instrumentation implements Handler.Ca
 
     @Override
     public Activity newActivity(ClassLoader cl, String className, Intent intent) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-        if (isPluginIntent(intent)) {
+        if (HookManager.INSTANCE.isPluginIntentSetup(intent)) {
             String targetClassName = intent.getComponent().getClassName();
-            Activity activity = rawInstrumentation.newActivity(PluginManager.INSTANCE.getClassLoader(), targetClassName, intent);
+            Activity activity = rawInstrumentation.newActivity(HookManager.INSTANCE.getClassLoader(), targetClassName, intent);
             activity.setIntent(intent);
-            HookManager.INSTANCE.hookResource(activity, PluginManager.INSTANCE.getResources());
+            HookManager.INSTANCE.hookResource(activity, HookManager.INSTANCE.getResources());
             return activity;
         }
         return super.newActivity(cl, className, intent);
@@ -51,13 +47,7 @@ public class HookedInstrumentation extends Instrumentation implements Handler.Ca
     public ActivityResult execStartActivity(
             Context who, IBinder contextThread, IBinder token, Activity target,
             Intent intent, int requestCode, Bundle options) {
-        String targetPackageName = intent.getComponent().getPackageName();
-        if (HOST_APP_PACKAGE_NAME != targetPackageName) {
-            intent.setClassName(HOST_APP_PACKAGE_NAME, HOST_PLACE_HOLDER_ACTIVITY);
-            intent.putExtra(KEY_IS_PLUGIN, true);
-            intent.putExtra(KEY_PACKAGE, targetPackageName);
-            intent.putExtra(KEY_ACTIVITY, intent.getComponent().getClassName());
-        }
+        HookManager.INSTANCE.setPlaceHolderIntent(intent);
         try {
             Method execStartActivityMethod = Instrumentation.class.getDeclaredMethod(
                     "execStartActivity", Context.class, IBinder.class, IBinder.class,
@@ -69,13 +59,5 @@ public class HookedInstrumentation extends Instrumentation implements Handler.Ca
             e.printStackTrace();
             throw new RuntimeException("do not support!!!" + e.getMessage());
         }
-    }
-
-    private Boolean isPluginIntent(Intent intent) {
-        if (intent.getBooleanExtra(KEY_IS_PLUGIN, false)) {
-            intent.setClassName(intent.getStringExtra(KEY_PACKAGE), intent.getStringExtra(KEY_ACTIVITY));
-            return true;
-        }
-        return false;
     }
 }
