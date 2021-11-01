@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.content.ComponentName;
 
 import com.dev.manager.HookManager;
 
@@ -24,7 +25,15 @@ public class HookedInstrumentation extends Instrumentation implements Handler.Ca
 
     @Override
     public void callActivityOnCreate(Activity activity, Bundle icicle) {
-        super.callActivityOnCreate(activity, icicle);
+        final Intent intent = activity.getIntent();
+        if(HookManager.INSTANCE.isPluginIntent(intent)) {
+            Context base = activity.getBaseContext();
+            try {
+                // TODO: finish in phase 2
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
     }
 
     @Override
