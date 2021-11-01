@@ -13,11 +13,15 @@ import androidx.appcompat.view.ContextThemeWrapper
 import com.dev.constant.HookConstant.Companion.EXECUTE_TRANSACTION
 import com.dev.constant.HookConstant.Companion.HOST_APP_PACKAGE_NAME
 import com.dev.constant.HookConstant.Companion.HOST_PLACE_HOLDER_ACTIVITY
+import com.dev.constant.HookConstant.Companion.KEY_ACTIVITY
+import com.dev.constant.HookConstant.Companion.KEY_IS_PLUGIN
+import com.dev.constant.HookConstant.Companion.KEY_PACKAGE
 import com.dev.constant.HookConstant.Companion.KEY_RAW_INTENT
 import com.dev.constant.HookConstant.Companion.LAUNCH_ACTIVITY
 import com.dev.framework.ActivityThreadHandlerCallback
 import com.dev.framework.HookedInstrumentation
 import com.dev.framework.IActivityManagerHandler
+import com.dev.util.safeLeft
 import java.lang.reflect.Field
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Proxy
@@ -71,6 +75,32 @@ object HookManager {
         } catch (ex: Exception) {
             ex.printStackTrace()
         }
+    }
+
+    fun setPlaceHolderIntent(intent: Intent) {
+        val targetPackageName = intent.component?.packageName
+        val targetClassName = intent.component?.className
+        if (PluginManager.mContext?.packageName != targetPackageName) {
+            intent.apply {
+                setClassName(HOST_APP_PACKAGE_NAME, HOST_PLACE_HOLDER_ACTIVITY)
+                putExtra(KEY_IS_PLUGIN, true)
+                putExtra(KEY_PACKAGE, targetPackageName)
+                putExtra(KEY_ACTIVITY, targetClassName)
+            }
+        }
+    }
+
+    fun isPluginIntentSetup(intent: Intent): Boolean {
+        if (intent.getBooleanExtra(KEY_IS_PLUGIN, false)) {
+            safeLeft(
+                intent.getStringExtra(KEY_PACKAGE),
+                intent.getStringExtra(KEY_ACTIVITY)
+            ) { pkg, activity ->
+                intent.setClassName(pkg, activity)
+            }
+            return true
+        }
+        return false
     }
 
     @Deprecated("Temporarily useless")

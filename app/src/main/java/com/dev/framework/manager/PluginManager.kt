@@ -6,11 +6,13 @@ import com.dev.helper.PluginHelper
 import dalvik.system.DexClassLoader
 
 object PluginManager {
-     var classLoader: DexClassLoader? = null
-     var resources: Resources? = null
+    var classLoader: DexClassLoader? = null
+    var resources: Resources? = null
+    var mContext: Context? = null
 
     fun setUp(context: Context?) {
         context?.let {
+            mContext = it
             classLoader = PluginHelper.getPluginClassLoader(it)
             resources = PluginHelper.getPluginResource(it)
         }
