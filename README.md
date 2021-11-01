@@ -45,12 +45,6 @@ int result = ActivityManager.getService()
 ```
 
 
->注意: Android 8.0 之前并没有采用 AIDL ，而是采用了类似 AIDL 的形式，
->用 AMS 的代理对象 ActivityManagerProxy 来与 AMS 进行进程间通信，
-> Android 8.0 去除了 ActivityManagerNative 的内部类 ActivityManagerProxy,代替它的是 IActivityManager ，它是 AMS 在本地的代理。
-
----
-
 
 
 
