@@ -9,8 +9,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 
-import com.dev.framework.manager.HookManager;
-import com.dev.framework.manager.PluginManager;
+import com.dev.manager.HookManager;
 
 import java.lang.reflect.Method;
 
@@ -37,9 +36,9 @@ public class HookedInstrumentation extends Instrumentation implements Handler.Ca
     public Activity newActivity(ClassLoader cl, String className, Intent intent) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
         if (HookManager.INSTANCE.isPluginIntentSetup(intent)) {
             String targetClassName = intent.getComponent().getClassName();
-            Activity activity = rawInstrumentation.newActivity(PluginManager.INSTANCE.getClassLoader(), targetClassName, intent);
+            Activity activity = rawInstrumentation.newActivity(HookManager.INSTANCE.getClassLoader(), targetClassName, intent);
             activity.setIntent(intent);
-            HookManager.INSTANCE.hookResource(activity, PluginManager.INSTANCE.getResources());
+            HookManager.INSTANCE.hookResource(activity, HookManager.INSTANCE.getResources());
             return activity;
         }
         return super.newActivity(cl, className, intent);

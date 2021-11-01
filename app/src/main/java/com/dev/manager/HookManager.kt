@@ -1,4 +1,4 @@
-package com.dev.framework.manager
+package com.dev.manager
 
 import android.app.Activity
 import android.app.Instrumentation
@@ -21,12 +21,25 @@ import com.dev.constant.HookConstant.Companion.LAUNCH_ACTIVITY
 import com.dev.framework.ActivityThreadHandlerCallback
 import com.dev.framework.HookedInstrumentation
 import com.dev.framework.IActivityManagerHandler
+import com.dev.helper.PluginHelper
 import com.dev.util.safeLeft
+import dalvik.system.DexClassLoader
 import java.lang.reflect.Field
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Proxy
 
 object HookManager {
+    var classLoader: DexClassLoader? = null
+    var resources: Resources? = null
+    var mContext: Context? = null
+
+    fun setUp(context: Context?) {
+        context?.let {
+            mContext = it
+            classLoader = PluginHelper.getPluginClassLoader(it)
+            resources = PluginHelper.getPluginResource(it)
+        }
+    }
 
     fun hookActivityThreadInstrumentation() {
         try {
@@ -80,7 +93,7 @@ object HookManager {
     fun setPlaceHolderIntent(intent: Intent) {
         val targetPackageName = intent.component?.packageName
         val targetClassName = intent.component?.className
-        if (PluginManager.mContext?.packageName != targetPackageName) {
+        if (mContext?.packageName != targetPackageName) {
             intent.apply {
                 setClassName(HOST_APP_PACKAGE_NAME, HOST_PLACE_HOLDER_ACTIVITY)
                 putExtra(KEY_IS_PLUGIN, true)
