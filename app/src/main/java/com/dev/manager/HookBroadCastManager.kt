@@ -50,7 +50,7 @@ object HookBroadCastManager {
             }
             // 1，获取到 apk 对应的 Package 对象
             val rawPackage =
-                parsePackageMethod.invoke(packageParser, FileHelper.getDexPath(context), PackageManager.GET_RECEIVERS)
+                parsePackageMethod.invoke(packageParser, File(FileHelper.getDexPath(context)), PackageManager.GET_RECEIVERS)
 
             // 2， 读取 Package 里面的 receivers 字段,注意这是一个 List<Activity> (没错,底层把 <receiver> 当作 <activity> 处理)
             val receiversField = rawPackage.javaClass.getDeclaredField("receivers").apply {
@@ -68,7 +68,6 @@ object HookBroadCastManager {
             // 3，解析 receiver 对应的 intentFilter
             val packageParserActivityClass =
                 Class.forName("android.content.pm.PackageParser\$Activity")
-
             val packageUserStateClass = Class.forName("android.content.pm.PackageUserState")
             val rawPackageUserState = packageUserStateClass.newInstance()
 
@@ -89,7 +88,7 @@ object HookBroadCastManager {
             receivers?.forEach { receiver ->
                 val activityInfo = generateActivityInfoMethod.invoke(
                     packageParser,
-                    receiver,
+                    receiver as? Activity,
                     0,
                     rawPackageUserState,
                     userId
