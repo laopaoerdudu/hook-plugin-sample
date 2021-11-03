@@ -8,9 +8,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import android.content.ComponentName;
 
-import com.dev.manager.HookManager;
+import com.dev.manager.HookActivityManager;
 
 import java.lang.reflect.Method;
 
@@ -26,7 +25,7 @@ public class HookedInstrumentation extends Instrumentation implements Handler.Ca
     @Override
     public void callActivityOnCreate(Activity activity, Bundle icicle) {
         final Intent intent = activity.getIntent();
-        if(HookManager.INSTANCE.isPluginIntent(intent)) {
+        if(HookActivityManager.INSTANCE.isPluginIntent(intent)) {
             Context base = activity.getBaseContext();
             try {
                 // TODO: finish in phase 2
@@ -43,11 +42,11 @@ public class HookedInstrumentation extends Instrumentation implements Handler.Ca
 
     @Override
     public Activity newActivity(ClassLoader cl, String className, Intent intent) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-        if (HookManager.INSTANCE.isPluginIntentSetup(intent)) {
+        if (HookActivityManager.INSTANCE.isPluginIntentSetup(intent)) {
             String targetClassName = intent.getComponent().getClassName();
-            Activity activity = rawInstrumentation.newActivity(HookManager.INSTANCE.getClassLoader(), targetClassName, intent);
+            Activity activity = rawInstrumentation.newActivity(HookActivityManager.INSTANCE.getClassLoader(), targetClassName, intent);
             activity.setIntent(intent);
-            HookManager.INSTANCE.hookResource(activity, HookManager.INSTANCE.getResources());
+            HookActivityManager.INSTANCE.hookResource(activity, HookActivityManager.INSTANCE.getResources());
             return activity;
         }
         return super.newActivity(cl, className, intent);
@@ -56,7 +55,7 @@ public class HookedInstrumentation extends Instrumentation implements Handler.Ca
     public ActivityResult execStartActivity(
             Context who, IBinder contextThread, IBinder token, Activity target,
             Intent intent, int requestCode, Bundle options) {
-        HookManager.INSTANCE.setPlaceHolderIntent(intent);
+        HookActivityManager.INSTANCE.setPlaceHolderIntent(intent);
         try {
             Method execStartActivityMethod = Instrumentation.class.getDeclaredMethod(
                     "execStartActivity", Context.class, IBinder.class, IBinder.class,

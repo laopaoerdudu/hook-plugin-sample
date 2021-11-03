@@ -2,7 +2,7 @@ package com.dev.framework
 
 import android.content.Context
 import com.dev.constant.HookConstant.Companion.START_ACTIVITY_METHOD_NAME
-import com.dev.manager.HookManager
+import com.dev.manager.HookActivityManager
 import java.lang.reflect.InvocationHandler
 import java.lang.reflect.Method
 
@@ -13,7 +13,7 @@ class IActivityManagerHandler(context: Context?, private val rawIActivityManager
     override fun invoke(proxy: Any?, method: Method?, args: Array<Any>?): Any? {
         when (method?.name) {
             START_ACTIVITY_METHOD_NAME -> {
-                HookManager.replacePluginIntentWithPlaceHolderIntent(args)
+                HookActivityManager.replacePluginIntentWithPlaceHolderIntent(args)
             }
 
             else -> {

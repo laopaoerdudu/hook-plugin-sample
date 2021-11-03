@@ -28,7 +28,7 @@ import java.lang.reflect.Field
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Proxy
 
-object HookManager {
+object HookActivityManager {
     var classLoader: DexClassLoader? = null
     var resources: Resources? = null
     var mContext: Context? = null
