@@ -34,7 +34,7 @@ class MainActivity : AppCompatActivity() {
         HookActivityManager.setUp(applicationContext)
         HookActivityManager.hookActivityThreadInstrumentation()
         HookActivityManager.hookActivityInstrumentation(this)
-        HookBroadCastManager.loadBroadcast(this)
+        HookBroadCastManager.loadBroadcast(applicationContext)
         findViewById<Button>(R.id.btnStartPlugin).setOnClickListener {
             val classType = HookActivityManager.classLoader?.loadClass("$PLUGIN_PACKAGE_NAME.Util")
             val result = classType?.getDeclaredMethod("getAge")?.apply {
@@ -50,7 +50,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         findViewById<Button>(R.id.btnStartPluginBroadCast).setOnClickListener {
-            sendBroadcast(Intent("com.dev.plugin.receiver.PluginReceiver"))
+            sendBroadcast(Intent().apply {
+                action = "com.dev.plugin.receiver.PluginReceiver"
+            })
         }
     }
 }
