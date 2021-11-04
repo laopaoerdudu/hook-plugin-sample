@@ -65,7 +65,12 @@ int result = ActivityManager.getService()
         requestCode, 0, null, options);
 ```
 
-
+```
+public final ArrayList<Activity> activities = new ArrayList<Activity>(0);
+6243        public final ArrayList<Activity> receivers = new ArrayList<Activity>(0);
+6244        public final ArrayList<Provider> providers = new ArrayList<Provider>(0);
+6245        public final ArrayList<Service> services = new ArrayList<Service>(0);
+```
 
 
 
