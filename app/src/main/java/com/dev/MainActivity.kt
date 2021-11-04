@@ -50,8 +50,16 @@ class MainActivity : AppCompatActivity() {
         }
 
         findViewById<Button>(R.id.btnStartPluginBroadCast).setOnClickListener {
+            // TODO: fix `java.lang.ClassCastException: android.content.pm.PackageParser$Activity cannot be cast to android.app.Activity`
             sendBroadcast(Intent().apply {
                 action = "com.dev.plugin.receiver.PluginReceiver"
+            })
+        }
+
+        findViewById<Button>(R.id.btnStartPluginDynamicBroadCast).setOnClickListener {
+            val `DynamicBroadcast` = HookActivityManager.classLoader?.loadClass("$PLUGIN_PACKAGE_NAME.receiver.DynamicBroadcast")
+            `DynamicBroadcast`?.getDeclaredMethod("onReceive", Context::class.java, Intent::class.java)?.invoke(`DynamicBroadcast`.newInstance(), this, Intent().apply {
+                action = "com.dev.plugin.receiver.DynamicBroadcast"
             })
         }
     }
