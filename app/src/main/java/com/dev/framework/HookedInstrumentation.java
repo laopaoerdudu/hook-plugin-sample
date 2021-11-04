@@ -24,15 +24,16 @@ public class HookedInstrumentation extends Instrumentation implements Handler.Ca
 
     @Override
     public void callActivityOnCreate(Activity activity, Bundle icicle) {
-        final Intent intent = activity.getIntent();
-        if(HookActivityManager.INSTANCE.isPluginIntent(intent)) {
-            Context base = activity.getBaseContext();
-            try {
-                // TODO: finish in phase 2
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        }
+        super.callActivityOnCreate(activity, icicle);
+//        final Intent intent = activity.getIntent();
+//        if(HookActivityManager.INSTANCE.isPluginIntent(intent)) {
+//            Context base = activity.getBaseContext();
+//            try {
+//                // TODO: finish in phase 2
+//            } catch (Exception ex) {
+//                ex.printStackTrace();
+//            }
+//        }
     }
 
     @Override
