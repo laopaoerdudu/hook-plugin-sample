@@ -89,7 +89,7 @@ object HookBroadCastManager {
                     userId
                 ) as? ActivityInfo
                 val filters = intentsField.get(receiver) as? List<out IntentFilter>
-                sCache.put(activityInfo, filters)
+                sCache[activityInfo] = filters
             }
         } catch (ex: Exception) {
             ex.printStackTrace()

@@ -1,7 +1,26 @@
 
 该 Sample 主要演示利用 Hook 技术实现 Activity 插件化。
 
-**资源参考**：
+#### 静态广播插件化
+
+对静态 BroadcastReceiver 无能为力吗？想一想这里的难点是什么？
+
+没错，主要是静态 BroadcastReceiver 里面的 IntentFilter 我们事先无法确定，它是动态变化的；
+但是，动态 BroadcastReceiver 可以动态添加 IntentFilter 吗！！
+
+静态 BroadcastReceiver 与动态 BroadcastReceiver 一个非常大的不同之处在于：
+动态 BroadcastReceiver 在进程死亡之后是无法接收广播的，而静态 BroadcastReceiver 则可以，系统会唤醒 Receiver 所在进程；
+
+要把插件中的静态 BroadcastReceiver 当作动态 BroadcastReceiver 处理，我们首先得知道插件中到底注册了哪些广播；
+这个过程归根结底就是获取 AndroidManifest.xml  中的 <receiver> 标签下面的内容，
+我们可以选择手动解析 xml 文件；这里我们选择使用系统的 PackageParser 帮助解析
+
+#### Service 的插件化
+
+
+
+
+**资源参考**： 
 
 [VirtualAPK](https://github.com/didi/VirtualAPK)
 
