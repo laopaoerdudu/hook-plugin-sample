@@ -1,5 +1,13 @@
 
-该 Sample 主要演示利用 Hook 技术实现 Activity 插件化。
+该 Sample 主要演示利用 Hook 技术实现插件化。
+
+#### Activity 的插件化
+
+Activity 拥有任务栈的概念。任务栈的概念使得 Activity 的创建就代表着入栈，销毁则代表出栈；
+又由于 Activity 代表着与用户交互的界面，所以这个栈的深度不可能太深——Activity 栈太深意味着用户需要狂点 back 键才能回到初始界面，这种体验显然有问题；
+因此，插件框架要处理的 Activity 数量其实是有限的，所以我们在 AndroidManifest.xml 中声明有限个 StubActivity 就能满足插件启动近乎无限个插件 Activity 的需求。
+
+
 
 #### 静态广播插件化
 
@@ -17,6 +25,63 @@
 
 #### Service 的插件化
 
+Service 组件则代表后台任务，除了内存不足系统回收之外，它的生命周期完全由我们的代码控制，与用户的交互无关。
+
+Service 组件与 Activity 有着非常多的相似之处：它们都是通过 Context 类完成启动，
+接着通过 ActivityManagerNative 进入 AMS，最后又通过 IApplicationThread 这个 Binder IPC到 App 进程的 Binder 线程池，
+然后通过 H 转发消息到 App 进程的主线程，最终完成组件生命周期的回调；
+
+AMS 转发了一个消息给 ActivityThread 的 H 这个 Handler，H 类收到这个消息之后，
+直接调用了 ActivityThread 类的 handleCreateService 方法，创建出了 Service 对象，并且调用了它的 onCreate方法；
+
+
+
+```
+# ActivityThread
+public final void scheduleCreateService(IBinder token,
+        ServiceInfo info, CompatibilityInfo compatInfo, int processState) {
+    updateProcessState(processState, false);
+    CreateServiceData s = new CreateServiceData();
+    s.token = token;
+    s.info = info;
+    s.compatInfo = compatInfo;
+
+    sendMessage(H.CREATE_SERVICE, s);
+}
+
+# ActivityThread
+private void handleCreateService(CreateServiceData data) {
+    unscheduleGcIdler();
+
+    LoadedApk packageInfo = getPackageInfoNoCheck(
+            data.info.applicationInfo, data.compatInfo);
+    Service service = null;
+    try {
+        java.lang.ClassLoader cl = packageInfo.getClassLoader();
+        service = (Service) cl.loadClass(data.info.name).newInstance();
+    } catch (Exception e) {
+    }
+
+    try {
+        ContextImpl context = ContextImpl.createAppContext(this, packageInfo);
+        context.setOuterContext(service);
+
+        Application app = packageInfo.makeApplication(false, mInstrumentation);
+        service.attach(context, this, data.info.name, data.token, app,
+                ActivityManagerNative.getDefault());
+        service.onCreate();
+        mServices.put(data.token, service);
+        try {
+            ActivityManagerNative.getDefault().serviceDoneExecuting(
+                    data.token, SERVICE_DONE_EXECUTING_ANON, 0, 0);
+        } catch (RemoteException e) {
+            // nothing to do.
+        }
+    } catch (Exception e) {
+    }
+}
+
+```
 
 
 
