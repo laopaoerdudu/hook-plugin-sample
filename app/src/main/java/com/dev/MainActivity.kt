@@ -10,9 +10,10 @@ import androidx.appcompat.app.AppCompatActivity
 import com.dev.constant.HookConstant.Companion.PLUGIN_ACTIVITY
 import com.dev.constant.HookConstant.Companion.PLUGIN_APK_NAME
 import com.dev.constant.HookConstant.Companion.PLUGIN_PACKAGE_NAME
-import com.dev.manager.HookManager
+import com.dev.manager.HookActivityManager
 import com.dev.helper.PluginHelper
 import com.dev.helper.FileHelper
+import com.dev.manager.HookBroadCastManager
 import java.io.File
 
 class MainActivity : AppCompatActivity() {
@@ -30,11 +31,12 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        HookManager.setUp(applicationContext)
-        HookManager.hookActivityThreadInstrumentation()
-        HookManager.hookActivityInstrumentation(this)
+        HookActivityManager.setUp(applicationContext)
+        HookActivityManager.hookActivityThreadInstrumentation()
+        HookActivityManager.hookActivityInstrumentation(this)
+        HookBroadCastManager.loadBroadcast(applicationContext)
         findViewById<Button>(R.id.btnStartPlugin).setOnClickListener {
-            val classType = HookManager.classLoader?.loadClass("$PLUGIN_PACKAGE_NAME.Util")
+            val classType = HookActivityManager.classLoader?.loadClass("$PLUGIN_PACKAGE_NAME.Util")
             val result = classType?.getDeclaredMethod("getAge")?.apply {
                 isAccessible = true
             }?.invoke(classType.newInstance()) as? Int
@@ -44,6 +46,20 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btnStartPluginActivity).setOnClickListener {
             startActivity(Intent().apply {
                 component = ComponentName(PLUGIN_PACKAGE_NAME, PLUGIN_ACTIVITY)
+            })
+        }
+
+        findViewById<Button>(R.id.btnStartPluginBroadCast).setOnClickListener {
+            // TODO: fix `java.lang.ClassCastException: android.content.pm.PackageParser$Activity cannot be cast to android.app.Activity`
+            sendBroadcast(Intent().apply {
+                action = "com.dev.plugin.receiver.PluginReceiver"
+            })
+        }
+
+        findViewById<Button>(R.id.btnStartPluginDynamicBroadCast).setOnClickListener {
+            val `DynamicBroadcast` = HookActivityManager.classLoader?.loadClass("$PLUGIN_PACKAGE_NAME.receiver.DynamicBroadcast")
+            `DynamicBroadcast`?.getDeclaredMethod("onReceive", Context::class.java, Intent::class.java)?.invoke(`DynamicBroadcast`.newInstance(), this, Intent().apply {
+                action = "com.dev.plugin.receiver.DynamicBroadcast"
             })
         }
     }

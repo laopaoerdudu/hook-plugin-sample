@@ -28,7 +28,7 @@ import java.lang.reflect.Field
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Proxy
 
-object HookManager {
+object HookActivityManager {
     var classLoader: DexClassLoader? = null
     var resources: Resources? = null
     var mContext: Context? = null
@@ -114,6 +114,22 @@ object HookManager {
             return true
         }
         return false
+    }
+
+    fun isPluginIntent(intent: Intent): Boolean {
+        return intent.getBooleanExtra(KEY_IS_PLUGIN, false)
+    }
+
+    fun getComponent(intent: Intent): ComponentName? {
+        if(isPluginIntent(intent)) {
+            safeLeft(
+                intent.getStringExtra(KEY_PACKAGE),
+                intent.getStringExtra(KEY_ACTIVITY)
+            ) { pkg, activity ->
+                return@safeLeft ComponentName(pkg, activity)
+            }
+        }
+        return intent.component
     }
 
     @Deprecated("Temporarily useless")

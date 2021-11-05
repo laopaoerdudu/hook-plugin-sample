@@ -16,6 +16,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <receiver android:name=".receiver.PluginReceiver">
+            <intent-filter>
+                <action android:name="com.dev.plugin.receiver.PluginReceiver"></action>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

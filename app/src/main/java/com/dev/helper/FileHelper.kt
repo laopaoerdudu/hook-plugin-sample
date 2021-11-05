@@ -60,5 +60,16 @@ class FileHelper {
         fun getDexPath(context: Context): String {
             return context.getFileStreamPath(HookConstant.PLUGIN_APK_NAME).path
         }
+
+        fun getFile(context: Context): File {
+            val apk = File(getDexPath(context))
+            if(!apk.exists()) {
+                val isCreate = apk.mkdir()
+                if(!isCreate) {
+                    throw RuntimeException("create dir " + apk.absolutePath + "failed");
+                }
+            }
+            return apk
+        }
     }
 }
