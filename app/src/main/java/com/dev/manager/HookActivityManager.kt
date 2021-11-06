@@ -1,5 +1,6 @@
 package com.dev.manager
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Instrumentation
 import android.content.ComponentName
@@ -116,6 +117,7 @@ object HookActivityManager {
         return false
     }
 
+    @SuppressLint("StaticFieldLeak")
     fun isPluginIntent(intent: Intent): Boolean {
         return intent.getBooleanExtra(KEY_IS_PLUGIN, false)
     }
@@ -130,26 +132,6 @@ object HookActivityManager {
             }
         }
         return intent.component
-    }
-
-    @Deprecated("Temporarily useless")
-    fun replacePluginIntentWithPlaceHolderIntent(args: Array<Any>?) {
-        args ?: return
-        var rawIntent: Intent?
-        var index = -1
-        for (i in args.indices) {
-            if (args[i] is Intent) {
-                index = i
-                break
-            }
-        }
-        if (index != -1) {
-            rawIntent = args[index] as? Intent
-            args[index] = Intent().apply {
-                component = ComponentName(HOST_APP_PACKAGE_NAME, HOST_PLACE_HOLDER_ACTIVITY)
-                putExtra(KEY_RAW_INTENT, rawIntent)
-            }
-        }
     }
 
     @Deprecated("Temporarily useless")

@@ -18,6 +18,10 @@
         </activity>
 
         <activity android:name=".PlaceHolderActivity"/>
+
+        <service
+            android:name=".ProxyService"
+            android:process="plugin"/>
     </application>
 
 </manifest>
