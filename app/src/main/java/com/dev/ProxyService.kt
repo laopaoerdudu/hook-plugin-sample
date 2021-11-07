@@ -4,6 +4,7 @@ import android.app.Service
 import android.content.Intent
 import android.os.IBinder
 import android.util.Log
+import com.dev.manager.HookServiceManager
 
 class ProxyService : Service() {
     override fun onCreate() {
@@ -13,6 +14,7 @@ class ProxyService : Service() {
 
     override fun onStart(intent: Intent?, startId: Int) {
         Log.i("WWE", "ProxyService #onStart")
+        HookServiceManager.onStart(intent, startId)
         super.onStart(intent, startId)
     }
 

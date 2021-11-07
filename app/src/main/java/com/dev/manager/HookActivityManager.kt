@@ -117,23 +117,6 @@ object HookActivityManager {
         return false
     }
 
-    @SuppressLint("StaticFieldLeak")
-    fun isPluginIntent(intent: Intent): Boolean {
-        return intent.getBooleanExtra(KEY_IS_PLUGIN, false)
-    }
-
-    fun getComponent(intent: Intent): ComponentName? {
-        if(isPluginIntent(intent)) {
-            safeLeft(
-                intent.getStringExtra(KEY_PACKAGE),
-                intent.getStringExtra(KEY_ACTIVITY)
-            ) { pkg, activity ->
-                return@safeLeft ComponentName(pkg, activity)
-            }
-        }
-        return intent.component
-    }
-
     @Deprecated("Temporarily useless")
     fun replacePlaceHolderIntentWithPluginIntent(msg: Message) {
         when (msg.what) {
@@ -187,55 +170,6 @@ object HookActivityManager {
             }
             else -> {
             }
-        }
-    }
-
-    @Deprecated("Temporarily useless")
-    fun hookIActivityManager(context: Context?) {
-        try {
-            var IActivityManagerField: Field?
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                IActivityManagerField = Class.forName("android.app.ActivityManager")
-                    .getDeclaredField("IActivityManagerSingleton").apply {
-                        isAccessible = true
-                    }
-            } else {
-                IActivityManagerField =
-                    Class.forName("android.app.ActivityManagerNative")
-                        .getDeclaredField("gDefault")
-                        .apply {
-                            isAccessible = true
-                        }
-            }
-
-            // 获取 Singleton<IActivityManager>
-            val singleton = IActivityManagerField?.get(null)
-
-            // 取出单例里面的 IActivityManager
-            val mInstanceField =
-                Class.forName("android.util.Singleton").getDeclaredField("mInstance").apply {
-                    isAccessible = true
-                }
-            val rawIActivityManager = mInstanceField.get(singleton)
-
-            // 创建代理对象，让代理对象帮忙干活
-            val proxyIActivityManager = Proxy.newProxyInstance(
-                Thread.currentThread().contextClassLoader,
-                arrayOf(Class.forName("android.app.IActivityManager")),
-                IActivityManagerHandler(context, rawIActivityManager)
-            )
-
-            mInstanceField.set(singleton, proxyIActivityManager)
-        } catch (ex: ClassNotFoundException) {
-            ex.printStackTrace()
-        } catch (ex: NoSuchMethodException) {
-            ex.printStackTrace()
-        } catch (ex: InvocationTargetException) {
-            ex.printStackTrace()
-        } catch (ex: IllegalAccessException) {
-            ex.printStackTrace()
-        } catch (ex: NoSuchFieldException) {
-            ex.printStackTrace()
         }
     }
 

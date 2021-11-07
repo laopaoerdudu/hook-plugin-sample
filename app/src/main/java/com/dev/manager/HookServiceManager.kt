@@ -7,14 +7,19 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.os.Binder
+import android.os.Build
 import android.os.IBinder
 import android.util.ArrayMap
 import com.dev.constant.HookConstant
 import com.dev.constant.HookConstant.Companion.HOST_APP_PACKAGE_NAME
 import com.dev.constant.HookConstant.Companion.HOST_PROXY_SERVICE
 import com.dev.constant.HookConstant.Companion.KEY_RAW_INTENT
+import com.dev.framework.IActivityManagerHandler
 import com.dev.util.safeLeft
 import java.io.File
+import java.lang.reflect.Field
+import java.lang.reflect.InvocationTargetException
+import java.lang.reflect.Proxy
 
 object HookServiceManager {
     // 存储插件的 Service 信息
@@ -22,13 +27,61 @@ object HookServiceManager {
     private val mServiceMap = hashMapOf<String, Service>()
     private lateinit var mContext: Context
 
+    fun hookIActivityManager(context: Context) {
+        mContext = context
+        try {
+            var IActivityManagerField: Field?
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                IActivityManagerField = Class.forName("android.app.ActivityManager")
+                    .getDeclaredField("IActivityManagerSingleton").apply {
+                        isAccessible = true
+                    }
+            } else {
+                IActivityManagerField =
+                    Class.forName("android.app.ActivityManagerNative")
+                        .getDeclaredField("gDefault")
+                        .apply {
+                            isAccessible = true
+                        }
+            }
+
+            // 获取 Singleton<IActivityManager>
+            val singleton = IActivityManagerField?.get(null)
+
+            // 取出单例里面的 IActivityManager
+            val mInstanceField =
+                Class.forName("android.util.Singleton").getDeclaredField("mInstance").apply {
+                    isAccessible = true
+                }
+            val rawIActivityManager = mInstanceField.get(singleton)
+
+            // 创建代理对象，让代理对象帮忙干活
+            val proxyIActivityManager = Proxy.newProxyInstance(
+                Thread.currentThread().contextClassLoader,
+                arrayOf(Class.forName("android.app.IActivityManager")),
+                IActivityManagerHandler(context, rawIActivityManager)
+            )
+
+            mInstanceField.set(singleton, proxyIActivityManager)
+        } catch (ex: ClassNotFoundException) {
+            ex.printStackTrace()
+        } catch (ex: NoSuchMethodException) {
+            ex.printStackTrace()
+        } catch (ex: InvocationTargetException) {
+            ex.printStackTrace()
+        } catch (ex: IllegalAccessException) {
+            ex.printStackTrace()
+        } catch (ex: NoSuchFieldException) {
+            ex.printStackTrace()
+        }
+    }
+
     /**
      * 解析 Apk  文件中的 <service>, 并存储起来
      * 主要是调用 PackageParser 类的 generateServiceInfo =方法
      * @param apkFile 插件 apk
      */
-    fun setUp(context: Context, apk: File) {
-        mContext = context
+    fun preLoadServices(apk: File) {
         try {
             val `PackageParser_Class` = Class.forName("android.content.pm.PackageParser")
             val rawPackageParser = `PackageParser_Class`.newInstance()
@@ -81,8 +134,8 @@ object HookServiceManager {
         }
     }
 
-    fun onStart(proxyIntent: Intent, startId: Int) {
-        val pluginIntent = proxyIntent.getParcelableExtra<Intent>(KEY_RAW_INTENT)
+    fun onStart(proxyIntent: Intent?, startId: Int) {
+        val pluginIntent = proxyIntent?.getParcelableExtra<Intent>(KEY_RAW_INTENT)
         val serviceInfo = getPluginService(pluginIntent)
         serviceInfo ?: return
         try {

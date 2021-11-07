@@ -14,6 +14,7 @@ import com.dev.manager.HookActivityManager
 import com.dev.helper.PluginHelper
 import com.dev.helper.FileHelper
 import com.dev.manager.HookBroadCastManager
+import com.dev.manager.HookServiceManager
 import java.io.File
 
 class MainActivity : AppCompatActivity() {
@@ -35,6 +36,8 @@ class MainActivity : AppCompatActivity() {
         HookActivityManager.hookActivityThreadInstrumentation()
         HookActivityManager.hookActivityInstrumentation(this)
         HookBroadCastManager.loadBroadcast(applicationContext)
+        HookServiceManager.hookIActivityManager(applicationContext)
+        HookServiceManager.preLoadServices(FileHelper.getFile(this))
         findViewById<Button>(R.id.btnStartPlugin).setOnClickListener {
             val classType = HookActivityManager.classLoader?.loadClass("$PLUGIN_PACKAGE_NAME.Util")
             val result = classType?.getDeclaredMethod("getAge")?.apply {
