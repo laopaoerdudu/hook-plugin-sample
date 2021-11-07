@@ -5,7 +5,7 @@ import com.dev.manager.HookServiceManager
 import java.lang.reflect.InvocationHandler
 import java.lang.reflect.Method
 
-class IActivityManagerHandler(private val context: Context, private val rawIActivityManager: Any?) :
+class IActivityManagerHandler(private val context: Context?, private val rawIActivityManager: Any?) :
     InvocationHandler {
 
     override fun invoke(proxy: Any?, method: Method?, args: Array<Any>?): Any? {

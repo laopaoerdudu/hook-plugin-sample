@@ -96,12 +96,12 @@ object HookServiceManager {
         }
     }
 
-    fun stopService(context: Context, args: Array<Any>?) {
+    fun stopService(context: Context?, args: Array<Any>?) {
         val pair = getIntentByArgs(args)
         if (args.isNullOrEmpty() || pair == null) {
             return
         }
-        if (pair.second?.component?.packageName != context.packageName) {
+        if (pair.second?.component?.packageName != context?.packageName) {
             // 插件的 intent 才做 hook
             val serviceInfo = getPluginService(pair.second)
             serviceInfo ?: return
@@ -110,7 +110,7 @@ object HookServiceManager {
             service.onDestroy()
             mServiceMap.remove(serviceInfo.name)
             if (mServiceMap.isEmpty()) {
-                context.stopService(Intent().apply {
+                context?.stopService(Intent().apply {
                     component = ComponentName(context.packageName, HOST_PROXY_SERVICE)
                 })
             }

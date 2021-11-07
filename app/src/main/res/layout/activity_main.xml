@@ -42,4 +42,22 @@
         app:layout_constraintTop_toBottomOf="@id/btnStartPluginBroadCast"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent" />
+
+    <Button
+        android:id="@+id/btnStartPluginService"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="启动插件的服务"
+        app:layout_constraintTop_toBottomOf="@id/btnStartPluginDynamicBroadCast"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <Button
+        android:id="@+id/btnStopPluginService"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="停止插件的服务"
+        app:layout_constraintTop_toBottomOf="@id/btnStartPluginService"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

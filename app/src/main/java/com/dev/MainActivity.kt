@@ -57,9 +57,28 @@ class MainActivity : AppCompatActivity() {
         }
 
         findViewById<Button>(R.id.btnStartPluginDynamicBroadCast).setOnClickListener {
-            val `DynamicBroadcast` = HookActivityManager.classLoader?.loadClass("$PLUGIN_PACKAGE_NAME.receiver.DynamicBroadcast")
-            `DynamicBroadcast`?.getDeclaredMethod("onReceive", Context::class.java, Intent::class.java)?.invoke(`DynamicBroadcast`.newInstance(), this, Intent().apply {
+            val `DynamicBroadcast` =
+                HookActivityManager.classLoader?.loadClass("$PLUGIN_PACKAGE_NAME.receiver.DynamicBroadcast")
+            `DynamicBroadcast`?.getDeclaredMethod(
+                "onReceive",
+                Context::class.java,
+                Intent::class.java
+            )?.invoke(`DynamicBroadcast`.newInstance(), this, Intent().apply {
                 action = "com.dev.plugin.receiver.DynamicBroadcast"
+            })
+        }
+
+        findViewById<Button>(R.id.btnStartPluginService).setOnClickListener {
+            startService(Intent().apply {
+                component =
+                    ComponentName(PLUGIN_PACKAGE_NAME, "com.dev.plugin.service.PluginService")
+            })
+        }
+
+        findViewById<Button>(R.id.btnStopPluginService).setOnClickListener {
+            stopService(Intent().apply {
+                component =
+                    ComponentName(PLUGIN_PACKAGE_NAME, "com.dev.plugin.service.PluginService")
             })
         }
     }
