@@ -20,8 +20,7 @@
         <activity android:name=".PlaceHolderActivity"/>
 
         <service
-            android:name=".ProxyService"
-            android:process="plugin"/>
+            android:name=".ProxyService" />
     </application>
 
 </manifest>
