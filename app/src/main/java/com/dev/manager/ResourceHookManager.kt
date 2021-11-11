@@ -11,7 +11,7 @@ object ResourceHookManager {
     var multipleResources: Resources? = null
 
     fun setup(context: Context, apkPath: String) {
-        multipleResources?.getQuantityString()
+        // multipleResources?.getQuantityString()
         preloadResource(context, apkPath)
     }
 
