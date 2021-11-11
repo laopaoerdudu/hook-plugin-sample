@@ -20,7 +20,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun attachBaseContext(newBase: Context?) {
         super.attachBaseContext(newBase)
-        FileHelper.copyAssetsFileToSystemDir(this, PLUGIN_APK_NAME)
+
         PluginHelper.loadPlugin(
             classLoader,
             listOf(File(getFileStreamPath(PLUGIN_APK_NAME.replace(".apk", ".dex")).absolutePath)),
